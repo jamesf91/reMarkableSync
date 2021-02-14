@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace RemarkableSync.RmLine
 {
+    class Constants
+    {
+        int X_MAX = 1404;
+        int Y_MAX = 1872;
+    }
+
     public enum PenEnum
     {
         // see https://github.com/ax3l/lines-are-beautiful/blob/develop/include/rmlab/Line.hpp
@@ -65,7 +71,7 @@ namespace RemarkableSync.RmLine
             }
         }
 
-        public virtual void FromStream(ref MemoryStream buffer)
+        public virtual void FromStream( MemoryStream buffer)
         {
             byte[] numberBytes = new byte[4];
             buffer.Read(numberBytes, 0, numberBytes.Length);
@@ -73,7 +79,7 @@ namespace RemarkableSync.RmLine
             for(int i = 0; i < numChildren; ++i)
             {
                 ByteableList child = CreateChild();
-                child.FromStream(ref buffer);
+                child.FromStream( buffer);
                 Append(child);
             }
         }
@@ -86,6 +92,14 @@ namespace RemarkableSync.RmLine
 
     class Page: ByteableList
     {
+        public static Page ParseStream( MemoryStream stream)
+        {
+            Page page = new Page();
+            stream.Seek(0, SeekOrigin.Begin);
+            page.FromStream(stream);
+            return page;
+        }
+
         public string Header { get; set; }
 
         public override ByteableList CreateChild()
@@ -93,12 +107,12 @@ namespace RemarkableSync.RmLine
             return new Layer();
         }
 
-        public override void FromStream(ref MemoryStream buffer)
+        public override void FromStream( MemoryStream buffer)
         {
             byte[] headerBytes = new byte[43];
             buffer.Read(headerBytes, 0, headerBytes.Length);
-            Header = BitConverter.ToString(headerBytes);
-            base.FromStream(ref buffer);
+            Header = Encoding.ASCII.GetString(headerBytes, 0, headerBytes.Length);
+            base.FromStream( buffer);
         }
 
         public override string ToString()
@@ -131,7 +145,7 @@ namespace RemarkableSync.RmLine
             return new Segment();
         }
 
-        public override void FromStream(ref MemoryStream buffer)
+        public override void FromStream( MemoryStream buffer)
         {
             byte[] strokeHeaderBytes = new byte[20];
             buffer.Read(strokeHeaderBytes, 0, strokeHeaderBytes.Length);
@@ -140,7 +154,7 @@ namespace RemarkableSync.RmLine
             Colour = (ColourEnum)BitConverter.ToInt32(strokeHeaderBytes, 4);
             Width = BitConverter.ToSingle(strokeHeaderBytes, 12);
 
-            base.FromStream(ref buffer);
+            base.FromStream( buffer);
         }
 
         public override string ToString()
@@ -163,7 +177,7 @@ namespace RemarkableSync.RmLine
             throw (new Exception("Segment has no children type"));
         }
 
-        public override void FromStream(ref MemoryStream buffer)
+        public override void FromStream( MemoryStream buffer)
         {
             byte[] segmentBytes = new byte[24];
             buffer.Read(segmentBytes, 0, segmentBytes.Length);
