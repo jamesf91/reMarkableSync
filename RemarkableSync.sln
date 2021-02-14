@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemarkableSync", "RemarkableSync.csproj", "{090B923F-25A0-4204-846C-71C0C7F50743}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Debug|x64.ActiveCfg = Debug|x64
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Debug|x64.Build.0 = Debug|x64
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|x64.ActiveCfg = Release|x64
+		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F5BFB75C-3002-4750-92C0-6D80B004C4A7}
+	EndGlobalSection
+EndGlobal
