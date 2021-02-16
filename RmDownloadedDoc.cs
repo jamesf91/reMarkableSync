@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-
+using RemarkableSync.RmLine;
 
 namespace RemarkableSync
 {
@@ -41,7 +41,7 @@ namespace RemarkableSync
             }
         }
 
-        public MemoryStream GetPageContent(int pageNumber)
+        public Page GetPageContent(int pageNumber)
         {
             if (_folderPath == "")
             {
@@ -53,6 +53,23 @@ namespace RemarkableSync
             {
                 Console.WriteLine($"RmDownloadedDoc::GetPageContent() - unexpected page number {pageNumber} for pageCount {_pageCount}");
                 return null;
+            }
+
+            try
+            {
+                using (FileStream fileStream = File.OpenRead(GetPageContentFilePath(pageNumber)))
+                {
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        fileStream.CopyTo(stream);
+                        Page page = Page.ParseStream(stream);
+                        return page;
+                    }
+                }
+            }
+            catch(Exception err)
+            {
+                Console.WriteLine($"RmDownloadedDoc::GetPageContent() - Parsing page content to Page object failedwith err: {err.Message}");
             }
 
             return null;

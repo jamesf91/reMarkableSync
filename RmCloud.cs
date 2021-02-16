@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Net;
 using System.IO.Compression;
 
+// TODO: Exception handling
 namespace RemarkableSync
 {
     class RmCloud

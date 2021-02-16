@@ -12,7 +12,22 @@ namespace RemarkableSync
     {
         static void Main(string[] args)
         {
+            RmCloud cloud = new RmCloud();
 
+            List<RmItem> rootItems = cloud.GetItemHierarchy();
+            RmItem item = (from root in rootItems
+                where root.Type == RmItem.DocumentType
+                select root).ToArray()[0];
+
+            List<Page> pages = new List<Page>();
+
+            using (RmDownloadedDoc doc = cloud.DownloadDocument(item))
+            {
+                for (int i = 0; i < doc.PageCount; ++i)
+                {
+                    pages.Add(doc.GetPageContent(i));
+                }
+            }
         }
     }
 }
