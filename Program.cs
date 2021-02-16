@@ -19,7 +19,7 @@ namespace RemarkableSync
                 where root.Type == RmItem.DocumentType
                 select root).ToArray()[0];
 
-            List<Page> pages = new List<Page>();
+            List<RmPage> pages = new List<RmPage>();
 
             using (RmDownloadedDoc doc = cloud.DownloadDocument(item))
             {

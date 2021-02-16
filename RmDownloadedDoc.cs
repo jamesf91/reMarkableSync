@@ -41,7 +41,7 @@ namespace RemarkableSync
             }
         }
 
-        public Page GetPageContent(int pageNumber)
+        public RmPage GetPageContent(int pageNumber)
         {
             if (_folderPath == "")
             {
@@ -62,7 +62,7 @@ namespace RemarkableSync
                     using (MemoryStream stream = new MemoryStream())
                     {
                         fileStream.CopyTo(stream);
-                        Page page = Page.ParseStream(stream);
+                        RmPage page = RmPage.ParseStream(stream);
                         return page;
                     }
                 }

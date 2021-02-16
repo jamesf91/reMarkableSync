@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 // TODO: Exception handling
 namespace RemarkableSync.RmLine
 {
-    class Constants
+    class RmConstants
     {
-        int X_MAX = 1404;
-        int Y_MAX = 1872;
+        public static int X_MAX = 1404;
+        public static int Y_MAX = 1872;
     }
 
     public enum PenEnum
@@ -89,13 +89,18 @@ namespace RemarkableSync.RmLine
         {
             return $"Unimplemented base type";
         }
+
+        public List<ByteableList> Objects
+        {
+            get { return _objects; }
+        }
     }
 
-    class Page: ByteableList
+    class RmPage: ByteableList
     {
-        public static Page ParseStream( MemoryStream stream)
+        public static RmPage ParseStream( MemoryStream stream)
         {
-            Page page = new Page();
+            RmPage page = new RmPage();
             stream.Seek(0, SeekOrigin.Begin);
             page.FromStream(stream);
             return page;
@@ -105,7 +110,7 @@ namespace RemarkableSync.RmLine
 
         public override ByteableList CreateChild()
         {
-            return new Layer();
+            return new RmLayer();
         }
 
         public override void FromStream( MemoryStream buffer)
@@ -122,11 +127,11 @@ namespace RemarkableSync.RmLine
         }
     }
 
-    class Layer:ByteableList
+    class RmLayer:ByteableList
     {
         public override ByteableList CreateChild()
         {
-            return new Stroke();
+            return new RmStroke();
         }
 
         public override string ToString()
@@ -135,7 +140,7 @@ namespace RemarkableSync.RmLine
         }
     }
 
-    class Stroke: ByteableList
+    class RmStroke: ByteableList
     {
         public PenEnum Pen  { get; set; }
         public ColourEnum Colour  { get; set; }
@@ -143,7 +148,7 @@ namespace RemarkableSync.RmLine
 
         public override ByteableList CreateChild()
         {
-            return new Segment();
+            return new RmSegment();
         }
 
         public override void FromStream( MemoryStream buffer)
@@ -164,7 +169,7 @@ namespace RemarkableSync.RmLine
         }
     }
 
-    class Segment: ByteableList
+    class RmSegment: ByteableList
     {
         public float X { get; set; }
         public float Y { get; set; }
