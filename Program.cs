@@ -28,6 +28,13 @@ namespace RemarkableSync
                     pages.Add(doc.GetPageContent(i));
                 }
             }
+
+            MyScriptClient hwrClient = new MyScriptClient();
+            MyScriptResult result = hwrClient.RequestHwr(pages);
+            if (result != null)
+            {
+                Console.WriteLine($"HWR result: {result.label}");
+            }
         }
     }
 }
