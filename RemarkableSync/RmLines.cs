@@ -47,7 +47,7 @@ namespace RemarkableSync.RmLine
         WHITE = 2
     }
 
-    abstract class ByteableList
+    public abstract class ByteableList
     {
         protected List<ByteableList> _objects;
 
@@ -96,7 +96,7 @@ namespace RemarkableSync.RmLine
         }
     }
 
-    class RmPage: ByteableList
+    public class RmPage: ByteableList
     {
         public static RmPage ParseStream( MemoryStream stream)
         {

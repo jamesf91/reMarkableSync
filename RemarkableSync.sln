@@ -3,7 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemarkableSync", "RemarkableSync.csproj", "{090B923F-25A0-4204-846C-71C0C7F50743}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemarkableSync", "RemarkableSync\RemarkableSync.csproj", "{090B923F-25A0-4204-846C-71C0C7F50743}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{C23909A9-5D87-4E94-B69D-B87150054B3F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{090B923F-25A0-4204-846C-71C0C7F50743} = {090B923F-25A0-4204-846C-71C0C7F50743}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnenoteAddin", "OnenoteAddin\OnenoteAddin.csproj", "{6FA7BD3B-28C8-4B93-B0AC-99F022986488}"
+	ProjectSection(ProjectDependencies) = postProject
+		{090B923F-25A0-4204-846C-71C0C7F50743} = {090B923F-25A0-4204-846C-71C0C7F50743}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +31,22 @@ Global
 		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|Any CPU.Build.0 = Release|Any CPU
 		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|x64.ActiveCfg = Release|x64
 		{090B923F-25A0-4204-846C-71C0C7F50743}.Release|x64.Build.0 = Release|x64
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Debug|x64.Build.0 = Debug|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x64.ActiveCfg = Release|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x64.Build.0 = Release|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Debug|x64.Build.0 = Debug|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x64.ActiveCfg = Release|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

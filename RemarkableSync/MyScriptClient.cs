@@ -12,7 +12,7 @@ using RemarkableSync.RmLine;
 
 namespace RemarkableSync
 {
-    class MyScriptClient
+    public class MyScriptClient
     {
         static readonly string Url = "https://cloud.myscript.com/api/v4.0/iink/batch";
         static readonly string JiixContentType = "application/vnd.myscript.jiix,application/json";

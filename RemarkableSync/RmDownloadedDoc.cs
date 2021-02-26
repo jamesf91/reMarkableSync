@@ -6,7 +6,7 @@ using RemarkableSync.RmLine;
 
 namespace RemarkableSync
 {
-    class RmDownloadedDoc: IDisposable
+    public class RmDownloadedDoc: IDisposable
     {
         private string _folderPath;
         private string _id;

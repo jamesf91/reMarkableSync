@@ -11,7 +11,7 @@ using System.IO.Compression;
 // TODO: Exception handling
 namespace RemarkableSync
 {
-    class RmCloud
+    public class RmCloud
     {
         private static string ConfigFile = ".rmapi";
         private static string DeviceTokenName = "devicetoken";
