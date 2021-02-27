@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" loadImage="GetImage">
+  <ribbon>
+    <tabs>
+      <!--
+      <tab idMso="TabHome">
+        <group id="groupVanillaAddIn" label="VanillaAddIn">
+          <button id="buttonVanillaAddIn" label="VanillaAddIn" size="large" screentip="VanillaAddIn" onAction="VanillaAddInButtonClicked" image="Logo.png"/>
+        </group>
+      </tab>
+      -->
+      <tab id="tabRemarkable" label="reMarkable">
+        <group id="groupRemarkableSync" label="Sync">
+          <button id="buttonSettings" label="Settings" size="large" screentip="Settings" onAction="onSettingsClicked" image="Settings"/>
+          <button id="buttonDownload" label="Fetch" size="large" screentip="Download from Remarkable" onAction="onDownloadButtonClicked" image="DownloadDoc"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

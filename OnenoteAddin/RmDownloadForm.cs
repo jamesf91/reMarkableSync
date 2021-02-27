@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace RemarkableSync
 { 
-    public partial class TreeViewForm : Form
+    public partial class RmDownloadForm : Form
     {
         class RmTreeNode : TreeNode
         {
@@ -36,7 +36,7 @@ namespace RemarkableSync
             }
         }
 
-        public TreeViewForm()
+        public RmDownloadForm()
         {
             InitializeComponent();
             InitializeData();
