@@ -35,6 +35,7 @@ namespace RemarkableSync
             {
                 Console.WriteLine($"HWR result: {result.label}");
             }
+            Console.ReadKey();
         }
     }
 }

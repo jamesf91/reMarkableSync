@@ -36,15 +36,25 @@ namespace RemarkableSync
             }
         }
 
+        private RmCloud _rmCloudClient;
+
         public RmDownloadForm()
         {
+            _rmCloudClient = new RmCloud();
             InitializeComponent();
             InitializeData();
         }
 
-        private void InitializeData()
+        private async void InitializeData()
         {
             rmTreeView.Nodes.Clear();
+            await Task.Run(() =>
+            {
+                var rootItems = _rmCloudClient.GetItemHierarchy();
+                var treeNodeList = RmTreeNode.FromRmItem(rootItems);
+                rmTreeView.Nodes.AddRange(treeNodeList.ToArray());
+            });
+            return;
         }
 
     }

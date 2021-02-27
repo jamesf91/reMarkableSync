@@ -24,6 +24,7 @@ namespace RemarkableSync
 
         private string _devicetoken;
         private string _usertoken;
+        private bool _initialized;
 
         private HttpClient _client;
 
@@ -31,20 +32,19 @@ namespace RemarkableSync
         {
             _usertoken = null;
             _devicetoken = null;
+            _initialized = false;
 
             _client = new HttpClient();
-            _client.DefaultRequestHeaders.Add("user-agent", UserAgent);
-
-            LoadConfig();
-            if (_devicetoken != null)
-            {
-                Console.WriteLine("device token loaded from config file");
-                RenewToken();
-            }
+            _client.DefaultRequestHeaders.Add("user-agent", UserAgent);  
         }
 
         public bool RegisterWithOneTimeCode(string oneTimeCode)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
+
             string uuid = Guid.NewGuid().ToString();
             string requestString = $@"{{
                 ""code"": {oneTimeCode},
@@ -77,6 +77,11 @@ namespace RemarkableSync
 
         public List<RmItem> GetAllItems()
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
+
             HttpResponseMessage response = Request(
                 HttpMethod.Get,
                 "/document-storage/json/2/docs",
@@ -96,6 +101,11 @@ namespace RemarkableSync
 
         public RmDownloadedDoc DownloadDocument(RmItem item)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
+
             if (item.Type != RmItem.DocumentType)
             {
                 Console.WriteLine($"RmCloud::DownloadDocument() - item with id {item.ID} is not document type");
@@ -131,6 +141,17 @@ namespace RemarkableSync
                 return null;
             }
 
+        }
+
+        private void Initialize()
+        {
+            LoadConfig();
+            if (_devicetoken != null)
+            {
+                Console.WriteLine("device token loaded from config file");
+                RenewToken();
+            }
+            _initialized = true;
         }
 
         private void LoadConfig()
