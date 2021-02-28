@@ -48,12 +48,12 @@ namespace RemarkableSync
         private async void InitializeData()
         {
             rmTreeView.Nodes.Clear();
-            await Task.Run(() =>
+            var treeNodeList = await Task.Run(() =>
             {
                 var rootItems = _rmCloudClient.GetItemHierarchy();
-                var treeNodeList = RmTreeNode.FromRmItem(rootItems);
-                rmTreeView.Nodes.AddRange(treeNodeList.ToArray());
+                return RmTreeNode.FromRmItem(rootItems);
             });
+            rmTreeView.Nodes.AddRange(treeNodeList.ToArray());
             return;
         }
 

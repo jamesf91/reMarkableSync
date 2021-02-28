@@ -225,6 +225,9 @@
   <data name="rmTreeView.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
+  <data name="rmTreeView.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 11.25pt</value>
+  </data>
   <data name="rmTreeView.Location" type="System.Drawing.Point, System.Drawing">
     <value>10, 10</value>
   </data>

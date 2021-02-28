@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
@@ -25,9 +26,17 @@ namespace RemarkableSync.OnenoteAddin
 		{ get; set; }
 
 		private RmDownloadForm downloadForm;
+		private ReferenceCountedObjectBase refCountObj;
 
 		public AddIn()
 		{
+			refCountObj = new ReferenceCountedObjectBase();
+		}
+
+		~AddIn()
+        {
+			refCountObj = null;
+
 		}
 
 		/// <summary>
@@ -37,6 +46,7 @@ namespace RemarkableSync.OnenoteAddin
 		/// <returns></returns>
 		public string GetCustomUI(string RibbonID)
 		{
+			Console.WriteLine("AddIn.GetCustomUI(). called");
 			return Properties.Resources.ribbon;
 		}
 
@@ -95,7 +105,7 @@ namespace RemarkableSync.OnenoteAddin
 
 		public async Task onDownloadButtonClicked(IRibbonControl control)
 		{
-			ShowForm();
+			ShowDownloadForm();
 			return;
 		}
 
@@ -104,7 +114,7 @@ namespace RemarkableSync.OnenoteAddin
 			return;
         }
 
-		private void ShowForm()
+		private void ShowDownloadForm()
 		{
 			this.downloadForm = new RmDownloadForm();
 			System.Windows.Forms.Application.Run(this.downloadForm);
@@ -132,6 +142,34 @@ namespace RemarkableSync.OnenoteAddin
 					break;
             }
 			return new CCOMStreamWrapper(imageStream);
+		}
+	}
+
+	class AddInClassFactory : ClassFactoryBase
+	{
+		public override void virtual_CreateInstance(IntPtr pUnkOuter, ref Guid riid, out IntPtr ppvObject)
+		{
+			Console.WriteLine("AddInClassFactory.CreateInstance().");
+			Console.WriteLine("Requesting Interface : " + riid.ToString());
+
+			if (riid == Marshal.GenerateGuidForType(typeof(IDTExtensibility2)) ||
+				riid == ManagedCOMLocalServer.IID_IDispatch ||
+				riid == ManagedCOMLocalServer.IID_IUnknown)
+			{
+				AddIn addInObj = new AddIn();
+
+				ppvObject = Marshal.GetComInterfaceForObject(addInObj, typeof(IDTExtensibility2));
+			}
+			else if (riid == Marshal.GenerateGuidForType(typeof(IRibbonExtensibility)))
+            {
+				AddIn addInObj = new AddIn();
+
+				ppvObject = Marshal.GetComInterfaceForObject(addInObj, typeof(IRibbonExtensibility));
+			}
+			else
+			{
+				throw new COMException("No interface", unchecked((int)0x80004002));
+			}
 		}
 	}
 }

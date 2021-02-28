@@ -3,4 +3,8 @@
 */obj/
 */packages/
 
+.vs/
 packages/
+
+
+*.tlb
