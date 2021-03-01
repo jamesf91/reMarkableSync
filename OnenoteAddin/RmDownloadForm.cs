@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RemarkableSync.RmLine;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,11 +22,14 @@ namespace RemarkableSync
                 Text = (isCollection ? "\xD83D\xDCC1" : "\xD83D\xDCC4") + " " + visibleName;
                 ID = id;
                 VisibleName = visibleName;
+                IsCollection = isCollection;
             }
 
             public string ID { get; set; }
 
             public string VisibleName { get; set; }
+
+            public bool IsCollection { get; set; }
 
             public static List<RmTreeNode> FromRmItem(List<RmItem> rmItems)
             {
@@ -43,7 +47,6 @@ namespace RemarkableSync
 
         private RmCloud _rmCloudClient;
         private Application _application;
-        private delegate void _uiDelegate();
 
         [DllImport("USER32.DLL")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -77,25 +80,62 @@ namespace RemarkableSync
             Close();
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
+        private async void btnOk_Click(object sender, EventArgs e)
         {
             if (rmTreeView.SelectedNode == null)
             {
                 MessageBox.Show(this, "No document selected.");
                 return;
             }
-            string id = ((RmTreeNode)rmTreeView.SelectedNode).ID;
-            Console.WriteLine($"Selected: {((RmTreeNode)rmTreeView.SelectedNode).VisibleName} | {id}");
-            bool success = true;
+
+            RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
+            Console.WriteLine($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
+
+            bool success = await ImportDocument(rmTreeNode);
             Console.WriteLine("Import " +  (success ? "successful" : "failed"));
-            Close();
         }
 
-        /*
-        private async Task<bool> ImportDocument(string documentId)
+
+        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode)
         {
+            if (rmTreeNode.IsCollection)
+            {
+                MessageBox.Show(this, "Only document can be imported");
+                return false;
+            }
+
+            RmItem item = new RmItem();
+            item.Type = RmItem.DocumentType;
+            item.ID = rmTreeNode.ID;
+            item.VissibleName = rmTreeNode.VisibleName;
+
+            List<RmPage> pages = new List<RmPage>();
+
+            lblInfo.Text = $"Downloading {rmTreeNode.VisibleName}...";
+
+            using (RmDownloadedDoc doc = await _rmCloudClient.DownloadDocument(item))
+            {
+                Console.WriteLine("ImportDocument() - document downloaded");
+                for (int i = 0; i < doc.PageCount; ++i)
+                {
+                    pages.Add(doc.GetPageContent(i));
+                }
+            }
+
+            lblInfo.Text = $"Digitizing {rmTreeNode.VisibleName}...";
+            MyScriptClient hwrClient = new MyScriptClient();
+            Console.WriteLine("ImportDocument() - requesting hand writing recognition");
+            MyScriptResult result = await hwrClient.RequestHwr(pages);
+            if (result != null)
+            {
+                lblInfo.Text = $"Import result:\n {result.label}";
+            }
+            else
+            {
+                lblInfo.Text = "Digitizing failed";
+            }
             return true;
         }
-        */
+
     }
 }
