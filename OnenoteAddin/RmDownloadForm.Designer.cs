@@ -32,7 +32,7 @@ namespace RemarkableSync
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RmDownloadForm));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblInfo = new System.Windows.Forms.Label();
             this.btnOk = new System.Windows.Forms.Button();
             this.rmTreeView = new System.Windows.Forms.TreeView();
             this.tableLayoutPanel.SuspendLayout();
@@ -42,7 +42,7 @@ namespace RemarkableSync
             // 
             resources.ApplyResources(this.tableLayoutPanel, "tableLayoutPanel");
             this.tableLayoutPanel.Controls.Add(this.btnCancel, 1, 2);
-            this.tableLayoutPanel.Controls.Add(this.label1, 0, 1);
+            this.tableLayoutPanel.Controls.Add(this.lblInfo, 0, 1);
             this.tableLayoutPanel.Controls.Add(this.btnOk, 0, 2);
             this.tableLayoutPanel.Controls.Add(this.rmTreeView, 0, 0);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
@@ -52,18 +52,20 @@ namespace RemarkableSync
             resources.ApplyResources(this.btnCancel, "btnCancel");
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // label1
+            // lblInfo
             // 
-            resources.ApplyResources(this.label1, "label1");
-            this.tableLayoutPanel.SetColumnSpan(this.label1, 2);
-            this.label1.Name = "label1";
+            resources.ApplyResources(this.lblInfo, "lblInfo");
+            this.tableLayoutPanel.SetColumnSpan(this.lblInfo, 2);
+            this.lblInfo.Name = "lblInfo";
             // 
             // btnOk
             // 
             resources.ApplyResources(this.btnOk, "btnOk");
             this.btnOk.Name = "btnOk";
             this.btnOk.UseVisualStyleBackColor = true;
+            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
             // 
             // rmTreeView
             // 
@@ -87,7 +89,7 @@ namespace RemarkableSync
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
         private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblInfo;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.TreeView rmTreeView;
     }

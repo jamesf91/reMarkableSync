@@ -25,17 +25,17 @@ namespace RemarkableSync.OnenoteAddin
 		protected Application OneNoteApplication
 		{ get; set; }
 
-		private RmDownloadForm downloadForm;
-		private ReferenceCountedObjectBase refCountObj;
+		private RmDownloadForm _downloadForm;
+		private ReferenceCountedObjectBase _refCountObj;
 
 		public AddIn()
 		{
-			refCountObj = new ReferenceCountedObjectBase();
+			_refCountObj = new ReferenceCountedObjectBase();
 		}
 
 		~AddIn()
         {
-			refCountObj = null;
+			_refCountObj = null;
 
 		}
 
@@ -60,11 +60,11 @@ namespace RemarkableSync.OnenoteAddin
 		/// <param name="custom"></param>
 		public void OnBeginShutdown(ref Array custom)
 		{
-			this.downloadForm?.Invoke(new Action(() =>
+			_downloadForm?.Invoke(new Action(() =>
 			{
 				// close the form on the forms thread
-				this.downloadForm?.Close();
-				this.downloadForm = null;
+				_downloadForm?.Close();
+				_downloadForm = null;
 			}));
 		}
 
@@ -116,8 +116,16 @@ namespace RemarkableSync.OnenoteAddin
 
 		private void ShowDownloadForm()
 		{
-			this.downloadForm = new RmDownloadForm();
-			System.Windows.Forms.Application.Run(this.downloadForm);
+			if (_downloadForm == null)
+			{
+				_downloadForm = new RmDownloadForm(OneNoteApplication);
+				System.Windows.Forms.Application.Run(_downloadForm);
+				_downloadForm = null;
+			}
+			else
+            {
+				_downloadForm.Focus();
+            }
 		}
 
 		/// <summary>

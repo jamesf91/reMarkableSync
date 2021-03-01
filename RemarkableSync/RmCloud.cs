@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Net;
 using System.IO.Compression;
+using System.Threading.Tasks;
 
 // TODO: Exception handling
 namespace RemarkableSync
@@ -38,11 +39,11 @@ namespace RemarkableSync
             _client.DefaultRequestHeaders.Add("user-agent", UserAgent);  
         }
 
-        public bool RegisterWithOneTimeCode(string oneTimeCode)
+        public async Task<bool> RegisterWithOneTimeCode(string oneTimeCode)
         {
             if (!_initialized)
             {
-                Initialize();
+                await Initialize();
             }
 
             string uuid = Guid.NewGuid().ToString();
@@ -52,7 +53,7 @@ namespace RemarkableSync
                 ""deviceID"": {uuid}
             }}";
 
-            HttpResponseMessage response = Request(
+            HttpResponseMessage response = await Request(
                 HttpMethod.Post, 
                 DeviceTokenUrl, 
                 null, 
@@ -69,20 +70,20 @@ namespace RemarkableSync
             throw new Exception("Can't register device");
         }
 
-        public List<RmItem> GetItemHierarchy()
+        public async Task<List<RmItem>> GetItemHierarchy()
         {
-            List<RmItem> collection = GetAllItems();
+            List<RmItem> collection = await GetAllItems();
             return getChildItemsRecursive("", ref collection);
         }
 
-        public List<RmItem> GetAllItems()
+        public async Task<List<RmItem>> GetAllItems()
         {
             if (!_initialized)
             {
-                Initialize();
+                await Initialize();
             }
 
-            HttpResponseMessage response = Request(
+            HttpResponseMessage response = await Request(
                 HttpMethod.Get,
                 "/document-storage/json/2/docs",
                 null,
@@ -94,16 +95,16 @@ namespace RemarkableSync
                 return null;
             }
 
-            string responseContent = response.Content.ReadAsStringAsync().Result;
+            string responseContent = await response.Content.ReadAsStringAsync();
             List<RmItem> collection = JsonSerializer.Deserialize<List<RmItem>>(responseContent);
             return collection;
         }
 
-        public RmDownloadedDoc DownloadDocument(RmItem item)
+        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item)
         {
             if (!_initialized)
             {
-                Initialize();
+                await Initialize();
             }
 
             if (item.Type != RmItem.DocumentType)
@@ -117,7 +118,7 @@ namespace RemarkableSync
             {
                 // first get the blob url
                 string url = $"/document-storage/json/2/docs?doc={WebUtility.UrlEncode(item.ID)}&withBlob=true";
-                HttpResponseMessage response = Request(HttpMethod.Get, url, null, null);
+                HttpResponseMessage response = await Request(HttpMethod.Get, url, null, null);
                 if (!response.IsSuccessStatusCode)
                 {
                     Console.WriteLine("RmCloud::DownloadDocument() -  request failed with status code " + response.StatusCode.ToString());
@@ -130,7 +131,7 @@ namespace RemarkableSync
                     return null;
                 }
                 string blobUrl = items[0].BlobURLGet;
-                Stream stream = _client.GetStreamAsync(blobUrl).Result;
+                Stream stream = await _client.GetStreamAsync(blobUrl);
                 ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read);
 
                 return new RmDownloadedDoc(archive, item.ID);
@@ -143,15 +144,15 @@ namespace RemarkableSync
 
         }
 
-        private void Initialize()
+        private async Task<bool> Initialize()
         {
             LoadConfig();
             if (_devicetoken != null)
             {
                 Console.WriteLine("device token loaded from config file");
-                RenewToken();
+                _initialized = await RenewToken();
             }
-            _initialized = true;
+            return _initialized;
         }
 
         private void LoadConfig()
@@ -201,7 +202,7 @@ namespace RemarkableSync
             return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\" + ConfigFile;
         }
 
-        private HttpResponseMessage Request(HttpMethod method, string url, Dictionary<string, string> header, HttpContent content)
+        private async Task<HttpResponseMessage> Request(HttpMethod method, string url, Dictionary<string, string> header, HttpContent content)
         {
             if (!url.StartsWith("http"))
             {
@@ -227,11 +228,11 @@ namespace RemarkableSync
                 }
             }
 
-            HttpResponseMessage response = _client.SendAsync(request).Result;
+            HttpResponseMessage response = await _client.SendAsync(request);
             return response;
         }
 
-        private void RenewToken()
+        private async Task<bool> RenewToken()
         {
             if (_devicetoken == null || _devicetoken.Length == 0)
             {
@@ -241,13 +242,14 @@ namespace RemarkableSync
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Authorization", $"Bearer {_devicetoken}");
 
-            HttpResponseMessage response = Request(HttpMethod.Post, UserTokenUrl, header, null);
+            HttpResponseMessage response = await Request(HttpMethod.Post, UserTokenUrl, header, null);
             if (response.IsSuccessStatusCode)
             {
                 byte[] responseContent = response.Content.ReadAsByteArrayAsync().Result;
                 _usertoken = Encoding.ASCII.GetString(responseContent);
                 WriteConfig();
                 Console.WriteLine("user token renewed");
+                return true;
             }
             else
             {

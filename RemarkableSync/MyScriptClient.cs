@@ -53,7 +53,7 @@ namespace RemarkableSync
             LoadConfig();
         }
 
-        public MyScriptResult RequestHwr(List<RmPage> pages)
+        public async Task<MyScriptResult> RequestHwr(List<RmPage> pages)
         {
             Console.WriteLine($"MyScriptClient::RequestHwr() -  requesting hand writing recognition for {pages.Count} pages");
 
@@ -88,14 +88,14 @@ namespace RemarkableSync
                     requestMessage.Headers.Add("hmac", sBuilder.ToString());
                 }
 
-                HttpResponseMessage response = _client.SendAsync(requestMessage).Result;
+                HttpResponseMessage response = await _client.SendAsync(requestMessage);
                 if (!response.IsSuccessStatusCode)
                 {
                     Console.WriteLine($"MyScriptClient::RequestHwr() - Request was not successful. Return status: {response.StatusCode}, {response.ReasonPhrase}");
                     return null;
                 }
 
-                responseContentString = response.Content.ReadAsStringAsync().Result;
+                responseContentString = await response.Content.ReadAsStringAsync();
             }
             catch(Exception err)
             {

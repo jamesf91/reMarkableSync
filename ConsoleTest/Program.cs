@@ -14,14 +14,14 @@ namespace RemarkableSync
         {
             RmCloud cloud = new RmCloud();
 
-            List<RmItem> rootItems = cloud.GetItemHierarchy();
+            List<RmItem> rootItems = cloud.GetItemHierarchy().Result;
             RmItem item = (from root in rootItems
                 where root.Type == RmItem.DocumentType
                 select root).ToArray()[0];
 
             List<RmPage> pages = new List<RmPage>();
 
-            using (RmDownloadedDoc doc = cloud.DownloadDocument(item))
+            using (RmDownloadedDoc doc = cloud.DownloadDocument(item).Result)
             {
                 for (int i = 0; i < doc.PageCount; ++i)
                 {
@@ -30,7 +30,7 @@ namespace RemarkableSync
             }
 
             MyScriptClient hwrClient = new MyScriptClient();
-            MyScriptResult result = hwrClient.RequestHwr(pages);
+            MyScriptResult result = hwrClient.RequestHwr(pages).Result;
             if (result != null)
             {
                 Console.WriteLine($"HWR result: {result.label}");
