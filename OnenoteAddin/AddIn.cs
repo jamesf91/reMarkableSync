@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using Extensibility;
 using Microsoft.Office.Core;
+using Microsoft.Office.Interop.OneNote;
 using Application = Microsoft.Office.Interop.OneNote.Application;  // Conflicts with System.Windows.Forms
 
 namespace RemarkableSync.OnenoteAddin
@@ -26,11 +27,31 @@ namespace RemarkableSync.OnenoteAddin
 		{ get; set; }
 
 		private RmDownloadForm _downloadForm;
+		private SettingsForm _settingForm;
+		private Thread _downloadFormThread;
+		private Thread _settingFormThread;
 		private ReferenceCountedObjectBase _refCountObj;
+
+		internal class CWin32WindowWrapper : IWin32Window
+		{
+			private readonly IntPtr _windowHandle;
+
+			public CWin32WindowWrapper(IntPtr windowHandle)
+			{
+				_windowHandle = windowHandle;
+			}
+
+			public IntPtr Handle
+			{
+				get { return _windowHandle; }
+			}
+		}
 
 		public AddIn()
 		{
 			_refCountObj = new ReferenceCountedObjectBase();
+			_downloadFormThread = null;
+			_settingFormThread = null;
 		}
 
 		~AddIn()
@@ -65,6 +86,13 @@ namespace RemarkableSync.OnenoteAddin
 				// close the form on the forms thread
 				_downloadForm?.Close();
 				_downloadForm = null;
+			}));
+
+			_settingForm?.Invoke(new Action(() =>
+			{
+				// close the form on the forms thread
+				_settingForm?.Close();
+				_settingForm = null;
 			}));
 		}
 
@@ -105,27 +133,64 @@ namespace RemarkableSync.OnenoteAddin
 
 		public async Task onDownloadButtonClicked(IRibbonControl control)
 		{
-			ShowDownloadForm();
+			if (_downloadFormThread == null)
+			{
+				Window context = control.Context as Window;
+				CWin32WindowWrapper owner = new CWin32WindowWrapper((IntPtr)context.WindowHandle);
+
+				_downloadFormThread = new Thread(ShowDownloadForm);
+				_downloadFormThread.SetApartmentState(ApartmentState.STA);
+				_downloadFormThread.Start(owner);
+			}
+			else
+			{
+				// shouldn't happen as the download form is modal
+				_downloadForm?.Invoke(new Action(() => {
+					_downloadForm.BringToFrontAndActivate();
+				}));
+			}
 			return;
 		}
 
 		public async Task onSettingsClicked(IRibbonControl control)
         {
-			return;
-        }
-
-		private void ShowDownloadForm()
-		{
-			if (_downloadForm == null)
+			if (_settingFormThread == null)
 			{
-				_downloadForm = new RmDownloadForm(OneNoteApplication);
-				System.Windows.Forms.Application.Run(_downloadForm);
-				_downloadForm = null;
+				Window context = control.Context as Window;
+				CWin32WindowWrapper owner = new CWin32WindowWrapper((IntPtr)context.WindowHandle);
+
+				_settingFormThread = new Thread(ShowSettingsForm);
+				_settingFormThread.SetApartmentState(ApartmentState.STA);
+				_settingFormThread.Start(owner);
 			}
 			else
-            {
-				_downloadForm.Focus();
-            }
+			{
+				// shouldn't happen as the setting form is modal
+				_settingForm?.Invoke(new Action(() => {
+					_settingForm.BringToFrontAndActivate();
+				}));
+			}
+			return;
+		}
+
+		private void ShowDownloadForm(dynamic owner)
+		{
+			System.Windows.Forms.Application.EnableVisualStyles();
+			_downloadForm = new RmDownloadForm(OneNoteApplication);
+			_downloadForm.Visible = false;
+			_downloadForm.ShowDialog(owner);
+			_downloadForm = null;
+			_downloadFormThread = null;
+		}
+
+		private void ShowSettingsForm(dynamic owner)
+		{
+			System.Windows.Forms.Application.EnableVisualStyles();
+			_settingForm = new SettingsForm();
+			_settingForm.Visible = false;
+			_settingForm.ShowDialog(owner);
+			_settingForm = null;
+			_settingFormThread = null;
 		}
 
 		/// <summary>
@@ -146,7 +211,7 @@ namespace RemarkableSync.OnenoteAddin
 					break;
 				case "Logo":
 				default:
-					Properties.Resources.Logo.Save(imageStream, ImageFormat.Png);
+					Properties.Resources.DownloadDoc.Save(imageStream, ImageFormat.Png);
 					break;
             }
 			return new CCOMStreamWrapper(imageStream);

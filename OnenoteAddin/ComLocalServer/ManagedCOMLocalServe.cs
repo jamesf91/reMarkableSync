@@ -292,6 +292,7 @@ namespace RemarkableSync.OnenoteAddin
 						catch (Exception ex)
 						{
 							MessageBox.Show("Error while registering the server:\n"+ex.ToString());
+							Console.WriteLine("Error while registering the server:\n" + ex.ToString());
 						}
 						finally
 						{

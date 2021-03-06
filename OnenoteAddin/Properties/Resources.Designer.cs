@@ -82,9 +82,19 @@ namespace RemarkableSync.OnenoteAddin.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Logo {
+        internal static System.Drawing.Bitmap loading_spinner {
             get {
-                object obj = ResourceManager.GetObject("Logo", resourceCulture);
+                object obj = ResourceManager.GetObject("loading_spinner", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap opacity_grey {
+            get {
+                object obj = ResourceManager.GetObject("opacity_grey", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

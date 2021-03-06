@@ -115,6 +115,13 @@ namespace RemarkableSync
             }
         }
 
+        public void SetConfig(string appKey, string hmacKey)
+        {
+            _appKey = appKey;
+            _hmacKey = hmacKey;
+            WriteConfig(); 
+        }
+
         private HwrRequest CreateHwrRequest(List<RmPage> pages)
         {
             HwrRequest request = new HwrRequest();

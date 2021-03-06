@@ -41,11 +41,6 @@ namespace RemarkableSync
 
         public async Task<bool> RegisterWithOneTimeCode(string oneTimeCode)
         {
-            if (!_initialized)
-            {
-                await Initialize();
-            }
-
             string uuid = Guid.NewGuid().ToString();
             string requestString = $@"{{
                 ""code"": {oneTimeCode},
@@ -53,21 +48,27 @@ namespace RemarkableSync
                 ""deviceID"": {uuid}
             }}";
 
-            HttpResponseMessage response = await Request(
-                HttpMethod.Post, 
-                DeviceTokenUrl, 
-                null, 
-                new ByteArrayContent(Encoding.ASCII.GetBytes(requestString)));
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                byte[] responseContent = response.Content.ReadAsByteArrayAsync().Result;
-                _devicetoken = Encoding.ASCII.GetString(responseContent);
-                WriteConfig();
-                return true;
-            }
+                HttpResponseMessage response = await Request(
+                    HttpMethod.Post,
+                    DeviceTokenUrl,
+                    null,
+                    new ByteArrayContent(Encoding.ASCII.GetBytes(requestString)));
 
-            throw new Exception("Can't register device");
+                if (response.IsSuccessStatusCode)
+                {
+                    byte[] responseContent = response.Content.ReadAsByteArrayAsync().Result;
+                    _devicetoken = Encoding.ASCII.GetString(responseContent);
+                    WriteConfig();
+                    return true;
+                }
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine("RmCloud::RegisterWithOneTimeCode() - Error: " + err.Message);
+            }
+            return false;
         }
 
         public async Task<List<RmItem>> GetItemHierarchy()

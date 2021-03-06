@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Application = Microsoft.Office.Interop.OneNote.Application;
@@ -51,12 +52,48 @@ namespace RemarkableSync
         [DllImport("USER32.DLL")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        [DllImport("USER32.DLL")]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("USER32.DLL")]
+        public static extern bool IsIconic(IntPtr hWnd);
+
+        [DllImport("USER32.DLL")]
+        public static extern bool ShowWindow(IntPtr hWnd, int cmd);
+
+        public static void ForceShowWindow(IntPtr hWnd)
+        {
+            const int SW_RESTORE = 0x9;
+
+            if (hWnd == IntPtr.Zero)
+            {
+                return;
+            }
+            if (!IsWindowVisible(hWnd) || IsIconic(hWnd))
+            {
+                ShowWindow(hWnd, SW_RESTORE);
+            }
+            SetForegroundWindow(hWnd);
+        }
+
         public RmDownloadForm(Application application)
         {
             _rmCloudClient = new RmCloud();
             _application = application;
             InitializeComponent();
             InitializeData();
+            //ForceShowWindow(Handle);
+            this.Load += RmDownloadForm_Load;
+        }
+
+        public void BringToFrontAndActivate()
+        {
+            Console.WriteLine("BringToFrontAndActivate");
+            SetForegroundWindow(Handle);
+        }
+
+        private void RmDownloadForm_Load(object sender, EventArgs e)
+        {
             SetForegroundWindow(Handle);
         }
 
