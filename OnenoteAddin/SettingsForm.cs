@@ -15,16 +15,6 @@ namespace RemarkableSync.OnenoteAddin
         public SettingsForm()
         {
             InitializeComponent();
-            RmDownloadForm.ForceShowWindow(Handle);
-        }
-
-        public void BringToFrontAndActivate()
-        {
-            const int SW_RESTORE = 0x9;
-            const int SW_SHOW = 0x5;
-            Console.WriteLine("BringToFrontAndActivate");
-            Activate();
-            RmDownloadForm.ShowWindow(Handle, SW_SHOW);
         }
 
         private async void btnRemarkableApply_Click(object sender, EventArgs e)

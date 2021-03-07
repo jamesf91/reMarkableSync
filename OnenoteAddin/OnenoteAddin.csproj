@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6FA7BD3B-28C8-4B93-B0AC-99F022986488}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RemarkableSync.OnenoteAddin</RootNamespace>
     <AssemblyName>RemarkableSync.OnenoteAddin</AssemblyName>

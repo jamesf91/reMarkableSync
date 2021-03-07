@@ -23,6 +23,9 @@ namespace RemarkableSync.OnenoteAddin
 
 	public class AddIn : IDTExtensibility2, IRibbonExtensibility
 	{
+		[DllImport("USER32.DLL")]
+		private static extern bool SetForegroundWindow(IntPtr hWnd);
+
 		protected Application OneNoteApplication
 		{ get; set; }
 
@@ -146,7 +149,7 @@ namespace RemarkableSync.OnenoteAddin
 			{
 				// shouldn't happen as the download form is modal
 				_downloadForm?.Invoke(new Action(() => {
-					_downloadForm.BringToFrontAndActivate();
+					SetForegroundWindow(_downloadForm.Handle);
 				}));
 			}
 			return;
@@ -167,7 +170,7 @@ namespace RemarkableSync.OnenoteAddin
 			{
 				// shouldn't happen as the setting form is modal
 				_settingForm?.Invoke(new Action(() => {
-					_settingForm.BringToFrontAndActivate();
+					SetForegroundWindow(_downloadForm.Handle);
 				}));
 			}
 			return;

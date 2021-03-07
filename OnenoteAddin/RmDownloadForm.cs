@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Application = Microsoft.Office.Interop.OneNote.Application;
 
-namespace RemarkableSync
+namespace RemarkableSync.OnenoteAddin
 {
     public partial class RmDownloadForm : Form
     {
@@ -49,52 +49,12 @@ namespace RemarkableSync
         private RmCloud _rmCloudClient;
         private Application _application;
 
-        [DllImport("USER32.DLL")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("USER32.DLL")]
-        public static extern bool IsWindowVisible(IntPtr hWnd);
-
-        [DllImport("USER32.DLL")]
-        public static extern bool IsIconic(IntPtr hWnd);
-
-        [DllImport("USER32.DLL")]
-        public static extern bool ShowWindow(IntPtr hWnd, int cmd);
-
-        public static void ForceShowWindow(IntPtr hWnd)
-        {
-            const int SW_RESTORE = 0x9;
-
-            if (hWnd == IntPtr.Zero)
-            {
-                return;
-            }
-            if (!IsWindowVisible(hWnd) || IsIconic(hWnd))
-            {
-                ShowWindow(hWnd, SW_RESTORE);
-            }
-            SetForegroundWindow(hWnd);
-        }
-
         public RmDownloadForm(Application application)
         {
             _rmCloudClient = new RmCloud();
             _application = application;
             InitializeComponent();
             InitializeData();
-            //ForceShowWindow(Handle);
-            this.Load += RmDownloadForm_Load;
-        }
-
-        public void BringToFrontAndActivate()
-        {
-            Console.WriteLine("BringToFrontAndActivate");
-            SetForegroundWindow(Handle);
-        }
-
-        private void RmDownloadForm_Load(object sender, EventArgs e)
-        {
-            SetForegroundWindow(Handle);
         }
 
         private async void InitializeData()
@@ -159,19 +119,34 @@ namespace RemarkableSync
                 }
             }
 
-            lblInfo.Text = $"Digitizing {rmTreeNode.VisibleName}...";
+            lblInfo.Text = $"Digitising {rmTreeNode.VisibleName}...";
             MyScriptClient hwrClient = new MyScriptClient();
             Console.WriteLine("ImportDocument() - requesting hand writing recognition");
             MyScriptResult result = await hwrClient.RequestHwr(pages);
+
             if (result != null)
             {
-                lblInfo.Text = $"Import result:\n {result.label}";
+                UpdateOneNoteWithHwrResult(rmTreeNode.VisibleName, result);
+                lblInfo.Text = $"Imported {rmTreeNode.VisibleName} successfully.";
+                Task.Run(() =>
+                {
+                    Thread.Sleep(500);
+                }).Wait();
+                Close();
             }
             else
             {
-                lblInfo.Text = "Digitizing failed";
+                lblInfo.Text = "Digitising failed";
             }
             return true;
+        }
+
+        private void UpdateOneNoteWithHwrResult(string name, MyScriptResult result)
+        {
+            OneNoteHelper oneNoteHelper = new OneNoteHelper(_application);
+            string currentSectionId = oneNoteHelper.GetCurrentSectionId();
+            string newPageId = oneNoteHelper.CreatePage(currentSectionId, name);
+            oneNoteHelper.AddPageContent(newPageId, result.label);
         }
 
     }

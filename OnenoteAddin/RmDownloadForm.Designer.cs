@@ -1,5 +1,5 @@
 ﻿
-namespace RemarkableSync
+namespace RemarkableSync.OnenoteAddin
 {
     partial class RmDownloadForm
     {
