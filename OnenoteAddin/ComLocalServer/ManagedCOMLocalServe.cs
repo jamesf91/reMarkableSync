@@ -264,9 +264,6 @@ namespace RemarkableSync.OnenoteAddin
 			{
 				RegistryKey key = null;
 				RegistryKey key2 = null;
-				RegistryKey addinKey = null;
-				RegistryKey addinKey2 = null;
-
 
 				switch (args[0].ToLower())
 				{
@@ -278,13 +275,6 @@ namespace RemarkableSync.OnenoteAddin
 					case "/register":
 						try 
 						{
-							addinKey = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Office\\OneNote\\AddIns");
-							addinKey2 = addinKey.CreateSubKey(Assembly.GetExecutingAssembly().GetName().Name);
-							addinKey2.SetValue("LoadBehavior", 3, RegistryValueKind.DWord);
-							addinKey2.SetValue("CommandLineSafe", 0, RegistryValueKind.DWord);
-							addinKey2.SetValue("Description", "RemarkableSync", RegistryValueKind.String);
-							addinKey2.SetValue("FriendlyName", "RemarkableSync", RegistryValueKind.String);
-
 							key = Registry.ClassesRoot.CreateSubKey("CLSID\\" + Marshal.GenerateGuidForType(typeof(AddIn)).ToString("B"));
 							key2 = key.CreateSubKey("LocalServer32");
 							key2.SetValue(null, Application.ExecutablePath);
@@ -300,10 +290,6 @@ namespace RemarkableSync.OnenoteAddin
 								key.Close();
 							if (key2 != null)
 								key2.Close();
-							if (addinKey != null)
-								addinKey.Close();
-							if (addinKey2 != null)
-								addinKey2.Close();
 						}
 						bRet = false;
 						break;
@@ -314,12 +300,6 @@ namespace RemarkableSync.OnenoteAddin
 						{
 							key = Registry.ClassesRoot.OpenSubKey("CLSID\\" + Marshal.GenerateGuidForType(typeof(AddIn)).ToString("B"), true);
 							key.DeleteSubKey("LocalServer32");
-
-							addinKey = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Office\\OneNote\\AddIns");
-							addinKey.DeleteSubKey(Assembly.GetExecutingAssembly().GetName().Name);
-
-							addinKey2 = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Office\\OneNote\\AddInsData");
-							addinKey2.DeleteSubKey(Assembly.GetExecutingAssembly().GetName().Name);
 						} 
 						catch (Exception ex)
 						{
@@ -331,10 +311,6 @@ namespace RemarkableSync.OnenoteAddin
 								key.Close();
 							if (key2 != null)
 								key2.Close();
-							if (addinKey != null)
-								addinKey.Close();
-							if (addinKey2 != null)
-								addinKey2.Close();
 						}
 						bRet = false;
 						break;

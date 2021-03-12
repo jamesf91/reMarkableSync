@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnenoteAddin", "OnenoteAddi
 		{090B923F-25A0-4204-846C-71C0C7F50743} = {090B923F-25A0-4204-846C-71C0C7F50743}
 	EndProjectSection
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "OnenoteAddinSetup", "OnenoteAddinSetup\OnenoteAddinSetup.vdproj", "{166B26BF-F8F8-4298-8D8A-A27420646FE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,8 +47,8 @@ Global
 		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Debug|x86.Build.0 = Debug|x86
 		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x64.ActiveCfg = Release|Any CPU
-		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x64.Build.0 = Release|Any CPU
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x64.ActiveCfg = Release|x64
+		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x64.Build.0 = Release|x64
 		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x86.ActiveCfg = Release|x86
 		{C23909A9-5D87-4E94-B69D-B87150054B3F}.Release|x86.Build.0 = Release|x86
 		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -57,10 +59,17 @@ Global
 		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Debug|x86.Build.0 = Debug|x86
 		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x64.ActiveCfg = Release|Any CPU
-		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x64.Build.0 = Release|Any CPU
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x64.ActiveCfg = Release|x64
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x64.Build.0 = Release|x64
 		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x86.ActiveCfg = Release|x86
 		{6FA7BD3B-28C8-4B93-B0AC-99F022986488}.Release|x86.Build.0 = Release|x86
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Debug|Any CPU.ActiveCfg = Debug
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Debug|x64.ActiveCfg = Debug
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Debug|x86.ActiveCfg = Debug
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|Any CPU.ActiveCfg = Release
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x64.ActiveCfg = Release
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x64.Build.0 = Release
+		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

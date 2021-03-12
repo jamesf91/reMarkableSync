@@ -167,8 +167,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe $(TargetName)$(TargetExt) /codebase
- $(TargetName)$(TargetExt) -register
+    <PostBuildEvent>echo C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe $(TargetName)$(TargetExt) /codebase
+echo $(TargetName)$(TargetExt) -register
 </PostBuildEvent>
   </PropertyGroup>
 </Project>
