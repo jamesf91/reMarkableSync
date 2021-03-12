@@ -68,7 +68,6 @@ Global
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Debug|x86.ActiveCfg = Debug
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|Any CPU.ActiveCfg = Release
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x64.ActiveCfg = Release
-		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x64.Build.0 = Release
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

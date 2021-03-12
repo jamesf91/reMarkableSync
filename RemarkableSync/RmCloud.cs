@@ -43,13 +43,14 @@ namespace RemarkableSync
         {
             string uuid = Guid.NewGuid().ToString();
             string requestString = $@"{{
-                ""code"": {oneTimeCode},
-                ""deviceDesc"": {Device},
-                ""deviceID"": {uuid}
+                ""code"": ""{oneTimeCode}"",
+                ""deviceDesc"": ""{Device}"",
+                ""deviceID"": ""{uuid}""
             }}";
 
             try
             {
+                Console.WriteLine($"RmCloud::RegisterWithOneTimeCode() - registring with code: {oneTimeCode}");
                 HttpResponseMessage response = await Request(
                     HttpMethod.Post,
                     DeviceTokenUrl,
@@ -62,6 +63,10 @@ namespace RemarkableSync
                     _devicetoken = Encoding.ASCII.GetString(responseContent);
                     WriteConfig();
                     return true;
+                }
+                else
+                {
+                    Console.WriteLine($"RmCloud::RegisterWithOneTimeCode() - response code: {response.StatusCode}");
                 }
             }
             catch (Exception err)
