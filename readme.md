@@ -2,6 +2,9 @@
 This is an OneNote AddIn for importing digitized notes from the reMarkable tablet.
 
 ## Installation
+Latest release installer available at <https://github.com/jamesf91/RemarkableSync/releases/latest>  
+
+
 Choose either the 32-bit or the 64-bit Windows installer depending on whether the OneNote version is 32-bit or 64-bits:  
 In OneNote, go to File menu -> Account -> About OneNote. The first line in the About window should say something like "Microsoft OneNote ... 64-bit or 32-bit"
 
