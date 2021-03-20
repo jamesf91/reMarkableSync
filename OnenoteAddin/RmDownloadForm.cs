@@ -1,12 +1,6 @@
 ﻿using RemarkableSync.RmLine;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -46,15 +40,18 @@ namespace RemarkableSync.OnenoteAddin
             }
         }
 
-        private RmCloud _rmCloudClient;
+        private IRmDataSource _rmDataSource;
         private Application _application;
+        private IConfigStore _configStore;
 
-        public RmDownloadForm(Application application)
+        public RmDownloadForm(Application application, string settingsRegPath)
         {
-            _rmCloudClient = new RmCloud();
+            _configStore = new WinRegistryConfigStore(settingsRegPath);
+            _rmDataSource = new RmCloudDataSource(_configStore);
             _application = application;
+
             InitializeComponent();
-            InitializeData();
+            InitializeData();            
         }
 
         private async void InitializeData()
@@ -62,7 +59,7 @@ namespace RemarkableSync.OnenoteAddin
             rmTreeView.Nodes.Clear();
             lblInfo.Text = "Loading document list from reMarkable...";
 
-            var rootItems = await _rmCloudClient.GetItemHierarchy();
+            var rootItems = await _rmDataSource.GetItemHierarchy();
             Console.WriteLine("Got item hierarchy from remarkable cloud");
             var treeNodeList = RmTreeNode.FromRmItem(rootItems);
 
@@ -110,7 +107,7 @@ namespace RemarkableSync.OnenoteAddin
 
             lblInfo.Text = $"Downloading {rmTreeNode.VisibleName}...";
 
-            using (RmDownloadedDoc doc = await _rmCloudClient.DownloadDocument(item))
+            using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item))
             {
                 Console.WriteLine("ImportDocument() - document downloaded");
                 for (int i = 0; i < doc.PageCount; ++i)
@@ -120,7 +117,7 @@ namespace RemarkableSync.OnenoteAddin
             }
 
             lblInfo.Text = $"Digitising {rmTreeNode.VisibleName}...";
-            MyScriptClient hwrClient = new MyScriptClient();
+            MyScriptClient hwrClient = new MyScriptClient(_configStore);
             Console.WriteLine("ImportDocument() - requesting hand writing recognition");
             MyScriptResult result = await hwrClient.RequestHwr(pages);
 
@@ -149,5 +146,9 @@ namespace RemarkableSync.OnenoteAddin
             oneNoteHelper.AddPageContent(newPageId, result.label);
         }
 
+        private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _rmDataSource?.Dispose();
+        }
     }
 }

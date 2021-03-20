@@ -12,8 +12,11 @@ namespace RemarkableSync.OnenoteAddin
 {
     public partial class SettingsForm : Form
     {
-        public SettingsForm()
+        private IConfigStore _configStore;
+
+        public SettingsForm(string settingsRegPath)
         {
+            _configStore = new WinRegistryConfigStore(settingsRegPath);
             InitializeComponent();
         }
 
@@ -36,7 +39,7 @@ namespace RemarkableSync.OnenoteAddin
             ToggleLoadingIcon(true);
 
             string otc = textOtc.Text;
-            RmCloud rmClient = new RmCloud();
+            RmCloudDataSource rmClient = new RmCloudDataSource(_configStore);
             bool registerResult = await rmClient.RegisterWithOneTimeCode(otc);
 
             ToggleLoadingIcon(false);
@@ -77,7 +80,7 @@ namespace RemarkableSync.OnenoteAddin
             ToggleLoadingIcon(true);
             await Task.Run(() =>
             {
-                MyScriptClient myScriptClient = new MyScriptClient();
+                MyScriptClient myScriptClient = new MyScriptClient(_configStore);
                 myScriptClient.SetConfig(appKey, hmacKey);
             });
             ToggleLoadingIcon(false);

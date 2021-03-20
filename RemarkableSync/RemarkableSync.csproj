@@ -74,6 +74,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Renci.SshNet, Version=2020.0.1.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2020.0.1\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -88,6 +91,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Text.Json, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -97,13 +101,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IConfigStore.cs" />
+    <Compile Include="Interfaces\IRmDataSource.cs" />
     <Compile Include="MyScriptClient.cs" />
     <Compile Include="MyScriptResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RmCloud.cs" />
+    <Compile Include="RmCloudDataSource.cs" />
+    <Compile Include="RmCloudDownloadedDoc.cs" />
     <Compile Include="RmDownloadedDoc.cs" />
     <Compile Include="RmItem.cs" />
     <Compile Include="RmLines.cs" />
+    <Compile Include="RmSftpDataSource.cs" />
+    <Compile Include="RmSftpDownloadedDoc.cs" />
+    <Compile Include="RmSftpJsonTypes.cs" />
+    <Compile Include="WinRegistryConfigStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

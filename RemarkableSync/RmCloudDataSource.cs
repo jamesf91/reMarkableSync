@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 // TODO: Exception handling
 namespace RemarkableSync
 {
-    public class RmCloud
+    public class RmCloudDataSource : IRmDataSource
     {
-        private static string ConfigFile = ".rmapi";
-        private static string DeviceTokenName = "devicetoken";
-        private static string UserTokenName = "usertoken";
+        private static string DeviceTokenName = "rmdevicetoken";
+        private static string UserTokenName = "rmusertoken";
+        private static string EmptyToken = "****";
         private static string UserAgent = "rmapi";
         private static string Device = "desktop-windows";
         private static string DeviceTokenUrl = "https://my.remarkable.com/token/json/2/device/new";
@@ -28,12 +28,14 @@ namespace RemarkableSync
         private bool _initialized;
 
         private HttpClient _client;
+        private IConfigStore _configStore;
 
-        public RmCloud()
+        public RmCloudDataSource(IConfigStore configStore)
         {
             _usertoken = null;
             _devicetoken = null;
             _initialized = false;
+            _configStore = configStore;
 
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("user-agent", UserAgent);  
@@ -50,7 +52,7 @@ namespace RemarkableSync
 
             try
             {
-                Console.WriteLine($"RmCloud::RegisterWithOneTimeCode() - registring with code: {oneTimeCode}");
+                Console.WriteLine($"RmCloudDataSource::RegisterWithOneTimeCode() - registring with code: {oneTimeCode}");
                 HttpResponseMessage response = await Request(
                     HttpMethod.Post,
                     DeviceTokenUrl,
@@ -66,12 +68,12 @@ namespace RemarkableSync
                 }
                 else
                 {
-                    Console.WriteLine($"RmCloud::RegisterWithOneTimeCode() - response code: {response.StatusCode}");
+                    Console.WriteLine($"RmCloudDataSource::RegisterWithOneTimeCode() - response code: {response.StatusCode}");
                 }
             }
             catch (Exception err)
             {
-                Console.WriteLine("RmCloud::RegisterWithOneTimeCode() - Error: " + err.Message);
+                Console.WriteLine("RmCloudDataSource::RegisterWithOneTimeCode() - Error: " + err.Message);
             }
             return false;
         }
@@ -82,7 +84,7 @@ namespace RemarkableSync
             return getChildItemsRecursive("", ref collection);
         }
 
-        public async Task<List<RmItem>> GetAllItems()
+        private async Task<List<RmItem>> GetAllItems()
         {
             if (!_initialized)
             {
@@ -97,8 +99,8 @@ namespace RemarkableSync
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine("GetAllItems request failed with status code " + response.StatusCode.ToString());
-                return null;
+                string errMsg = "GetAllItems request failed with status code " + response.StatusCode.ToString();
+                throw new Exception(errMsg);
             }
 
             string responseContent = await response.Content.ReadAsStringAsync();
@@ -115,7 +117,7 @@ namespace RemarkableSync
 
             if (item.Type != RmItem.DocumentType)
             {
-                Console.WriteLine($"RmCloud::DownloadDocument() - item with id {item.ID} is not document type");
+                Console.WriteLine($"RmCloudDataSource::DownloadDocument() - item with id {item.ID} is not document type");
                 return null;
 
             }
@@ -127,20 +129,20 @@ namespace RemarkableSync
                 HttpResponseMessage response = await Request(HttpMethod.Get, url, null, null);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("RmCloud::DownloadDocument() -  request failed with status code " + response.StatusCode.ToString());
+                    Console.WriteLine("RmCloudDataSource::DownloadDocument() -  request failed with status code " + response.StatusCode.ToString());
                     return null;
                 }
                 List<RmItem> items = JsonSerializer.Deserialize<List<RmItem>>(response.Content.ReadAsStringAsync().Result);
                 if (items.Count == 0)
                 {
-                    Console.WriteLine("RmCloud::DownloadDocument() - Failed to find document with id: " + item.ID);
+                    Console.WriteLine("RmCloudDataSource::DownloadDocument() - Failed to find document with id: " + item.ID);
                     return null;
                 }
                 string blobUrl = items[0].BlobURLGet;
                 Stream stream = await _client.GetStreamAsync(blobUrl);
                 ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read);
 
-                return new RmDownloadedDoc(archive, item.ID);
+                return new RmCloudDownloadedDoc(archive, item.ID);
             }
             catch (Exception err)
             {
@@ -148,6 +150,12 @@ namespace RemarkableSync
                 return null;
             }
 
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
+            _configStore?.Dispose();
         }
 
         private async Task<bool> Initialize()
@@ -163,49 +171,20 @@ namespace RemarkableSync
 
         private void LoadConfig()
         {
-            Dictionary<string, string> config = new Dictionary<string, string>();
-            try
-            {
-                string configFilePath = GetConfigPath();
-                foreach (string line in File.ReadLines(configFilePath))
-                {
-                    int delimPos = line.IndexOf(':');
-                    if (delimPos == -1)
-                        continue;
-                    config.Add(line.Substring(0, delimPos).Trim(), line.Substring(delimPos + 1).Trim());
-                }
-            }
-            catch (Exception err)
-            {
-                Console.WriteLine($"Unable to load token from config file. Err = {err.Message}");
-            }
-
-            if (config.ContainsKey(DeviceTokenName))
-                _devicetoken = config[DeviceTokenName];
-
-            if (config.ContainsKey(UserTokenName))
-                _usertoken = config[UserTokenName];
+            string devicetoken = _configStore.GetConfig(DeviceTokenName);
+            string usertoken = _configStore.GetConfig(UserTokenName);
+            _devicetoken = devicetoken == EmptyToken ? "" : devicetoken;
+            _usertoken = usertoken == EmptyToken ? "" : usertoken;
         }
 
         private void WriteConfig()
         {
-            StreamWriter file = new StreamWriter(GetConfigPath());
-            if (_devicetoken?.Length > 0)
-            {
-                file.WriteLine(String.Format("{0}: {1}", DeviceTokenName, _devicetoken));
-            }
-            if (_usertoken?.Length > 0)
-            {
-                file.WriteLine(String.Format("{0}: {1}", UserTokenName, _usertoken));
-                _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_usertoken}");
+            Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
+            mapConfigs[DeviceTokenName] = _devicetoken?.Length > 0 ? _devicetoken : EmptyToken;
+            mapConfigs[UserTokenName] = _usertoken?.Length > 0 ? _usertoken : EmptyToken;
+            _configStore.SetConfigs(mapConfigs);
 
-            }
-            file.Close();
-        }
-
-        private string GetConfigPath()
-        {
-            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\" + ConfigFile;
+            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_usertoken}");
         }
 
         private async Task<HttpResponseMessage> Request(HttpMethod method, string url, Dictionary<string, string> header, HttpContent content)
