@@ -2,27 +2,29 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-
 using System.Threading.Tasks;
 using Renci.SshNet;
-using Renci.SshNet.Sftp;
+using Renci.SshNet.Common;
 
 
 namespace RemarkableSync
 {
     public partial class RmSftpDataSource : IRmDataSource
     {
+        public static readonly string SshHostConfig = "SshHost";
+
+        public static readonly string SshPasswordConfig = "SshPassword";
+
         private static readonly string ContentFolderPath = "/home/root/.local/share/remarkable/xochitl";
 
         private SftpClient _client;
 
         public RmSftpDataSource(IConfigStore configStore)
         {
-            string host = configStore.GetConfig("SshHost");
-            string password = configStore.GetConfig("SshPassword");
+            string host = configStore.GetConfig(SshHostConfig);
+            string password = configStore.GetConfig(SshPasswordConfig);
 
-            host = host ?? "remarkable";
+            host = host ?? "10.11.99.1";
             if (password == null)
             {
                 string errMsg = "Unable to get SSH password from config store";
@@ -32,9 +34,22 @@ namespace RemarkableSync
 
             const string username = "root";
             const int port = 22;
-            
-            _client = new SftpClient(host, port, username, password);
-            _client.Connect();
+
+            try
+            {
+                _client = new SftpClient(host, port, username, password);
+                _client.Connect();
+            }
+            catch (SshAuthenticationException err)
+            {
+                Console.WriteLine($"RmSftpDataSource::RmSftpDataSource() - authentication error on SFTP connection: err: {err.Message}");
+                throw new Exception("reMarkable device SSH login failed");
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine($"RmSftpDataSource::RmSftpDataSource() - error on SFTP connection: err: {err.Message}");
+                throw new Exception("Failed to connect to reMarkable device via SSH");
+            }
         }
 
         public async Task<List<RmItem>> GetItemHierarchy()
