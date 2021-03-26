@@ -1,12 +1,6 @@
 ﻿using RemarkableSync.RmLine;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -46,15 +40,17 @@ namespace RemarkableSync.OnenoteAddin
             }
         }
 
-        private RmCloud _rmCloudClient;
+        private IRmDataSource _rmDataSource;
         private Application _application;
+        private IConfigStore _configStore;
 
-        public RmDownloadForm(Application application)
+        public RmDownloadForm(Application application, string settingsRegPath)
         {
-            _rmCloudClient = new RmCloud();
+            _configStore = new WinRegistryConfigStore(settingsRegPath);
             _application = application;
+
             InitializeComponent();
-            InitializeData();
+            InitializeData();            
         }
 
         private async void InitializeData()
@@ -62,7 +58,47 @@ namespace RemarkableSync.OnenoteAddin
             rmTreeView.Nodes.Clear();
             lblInfo.Text = "Loading document list from reMarkable...";
 
-            var rootItems = await _rmCloudClient.GetItemHierarchy();
+            List<RmItem> rootItems = new List<RmItem>();
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    int connMethod = -1;
+                    try
+                    {
+                        string connMethodString = _configStore.GetConfig(SettingsForm.RmConnectionMethodConfig);
+                        connMethod = Convert.ToInt32(connMethodString);
+                    }
+                    catch (Exception err)
+                    {
+                        Console.WriteLine($"RmDownloadForm::RmDownloadForm() - Failed to get RmConnectionMethod config with err: {err.Message}");
+                        // will default to cloud
+                    }
+
+                    switch (connMethod)
+                    {
+                        case (int)SettingsForm.RmConnectionMethod.Ssh:
+                            _rmDataSource = new RmSftpDataSource(_configStore);
+                            Console.WriteLine("Using SFTP data source");
+                            break;
+                        case (int)SettingsForm.RmConnectionMethod.RmCloud:
+                        default:
+                            _rmDataSource = new RmCloudDataSource(_configStore);
+                            Console.WriteLine("Using rm cloud data source");
+                            break;
+                    }
+                });
+                rootItems = await _rmDataSource.GetItemHierarchy();
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine($"Error getting notebook structure from reMarkable. Err: {err.Message}");
+                MessageBox.Show($"Error getting notebook structure from reMarkable.\n{err.Message}", "Error");
+                Close();
+                return;
+            }
+
             Console.WriteLine("Got item hierarchy from remarkable cloud");
             var treeNodeList = RmTreeNode.FromRmItem(rootItems);
 
@@ -88,8 +124,18 @@ namespace RemarkableSync.OnenoteAddin
             RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
             Console.WriteLine($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
 
-            bool success = await ImportDocument(rmTreeNode);
-            Console.WriteLine("Import " +  (success ? "successful" : "failed"));
+            try
+            {
+                bool success = await ImportDocument(rmTreeNode);
+                Console.WriteLine("Import " + (success ? "successful" : "failed"));
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine($"Error importing document from reMarkable. Err: {err.Message}");
+                MessageBox.Show($"Error importing document from reMarkable.\n{err.Message}", "Error");
+                Close();
+                return;
+            }
         }
 
 
@@ -110,7 +156,7 @@ namespace RemarkableSync.OnenoteAddin
 
             lblInfo.Text = $"Downloading {rmTreeNode.VisibleName}...";
 
-            using (RmDownloadedDoc doc = await _rmCloudClient.DownloadDocument(item))
+            using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item))
             {
                 Console.WriteLine("ImportDocument() - document downloaded");
                 for (int i = 0; i < doc.PageCount; ++i)
@@ -120,7 +166,7 @@ namespace RemarkableSync.OnenoteAddin
             }
 
             lblInfo.Text = $"Digitising {rmTreeNode.VisibleName}...";
-            MyScriptClient hwrClient = new MyScriptClient();
+            MyScriptClient hwrClient = new MyScriptClient(_configStore);
             Console.WriteLine("ImportDocument() - requesting hand writing recognition");
             MyScriptResult result = await hwrClient.RequestHwr(pages);
 
@@ -149,5 +195,9 @@ namespace RemarkableSync.OnenoteAddin
             oneNoteHelper.AddPageContent(newPageId, result.label);
         }
 
+        private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _rmDataSource?.Dispose();
+        }
     }
 }

@@ -1,44 +1,24 @@
-﻿using System;
+﻿using RemarkableSync.RmLine;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using RemarkableSync.RmLine;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RemarkableSync
 {
     public class RmDownloadedDoc: IDisposable
     {
-        private string _folderPath;
-        private string _id;
-        private int _pageCount;
+        protected string _folderPath;
+        protected string _id;
+        protected int _pageCount;
 
 
-        public RmDownloadedDoc(ZipArchive archive, string id)
+        public RmDownloadedDoc(string id)
         {
             _id = id;
-            try
-            {
-                _folderPath = Path.Combine(Path.GetTempPath(), id);
-                archive.ExtractToDirectory(_folderPath);
-            }
-            catch (Exception err)
-            {
-                Console.WriteLine($"RmDownloadedDoc::RmDownloadedDoc() - failed to extract archive. Error: {err.Message}");
-                _folderPath = "";
-                return;
-            }
-
-            try
-            {
-                string pageFolder = Path.Combine(_folderPath, id);
-                var rmFiles = new List<string>(Directory.EnumerateFiles(pageFolder, "*.rm", SearchOption.TopDirectoryOnly));
-                _pageCount = rmFiles.Count;
-            }
-            catch (Exception err)
-            {
-                Console.WriteLine($"RmDownloadedDoc::RmDownloadedDoc() - failed to get page count. Error: {err.Message}");
-                _pageCount = 0;
-            }
+            _folderPath = Path.Combine(Path.GetTempPath(), id);
         }
 
         public RmPage GetPageContent(int pageNumber)
@@ -67,9 +47,9 @@ namespace RemarkableSync
                     }
                 }
             }
-            catch(Exception err)
+            catch (Exception err)
             {
-                Console.WriteLine($"RmDownloadedDoc::GetPageContent() - Parsing page content to Page object failedwith err: {err.Message}");
+                Console.WriteLine($"RmDownloadedDoc::GetPageContent() - Parsing page content to Page object failed with err: {err.Message}");
             }
 
             return null;
@@ -83,7 +63,7 @@ namespace RemarkableSync
                 {
                     Directory.Delete(_folderPath, true);
                 }
-                catch(Exception err)
+                catch (Exception err)
                 {
                     Console.WriteLine($"RmDownloadedDoc::Dispose() - failed to remove folder: {_folderPath}. Error: {err.Message}");
                 }
@@ -96,9 +76,14 @@ namespace RemarkableSync
             get { return _pageCount; }
         }
 
-        private string GetPageContentFilePath(int pageNumber)
+        protected string GetPageContentFilePath(int pageNumber)
         {
             return Path.Combine(_folderPath, _id, $"{pageNumber}.rm");
+        }
+
+        protected string GetPageContentFolderPath()
+        {
+            return Path.Combine(_folderPath, _id);
         }
     }
 }

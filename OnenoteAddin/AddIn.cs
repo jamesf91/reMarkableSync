@@ -29,6 +29,8 @@ namespace RemarkableSync.OnenoteAddin
 		protected Application OneNoteApplication
 		{ get; set; }
 
+		private const string _settingsRegPath = @"Software\Microsoft\Office\OneNote\AddInsData\RemarkableSync.OnenoteAddin";
+
 		private RmDownloadForm _downloadForm;
 		private SettingsForm _settingForm;
 		private Thread _downloadFormThread;
@@ -179,7 +181,7 @@ namespace RemarkableSync.OnenoteAddin
 		private void ShowDownloadForm(dynamic owner)
 		{
 			System.Windows.Forms.Application.EnableVisualStyles();
-			_downloadForm = new RmDownloadForm(OneNoteApplication);
+			_downloadForm = new RmDownloadForm(OneNoteApplication, _settingsRegPath);
 			_downloadForm.Visible = false;
 			_downloadForm.ShowDialog(owner);
 			_downloadForm = null;
@@ -189,7 +191,7 @@ namespace RemarkableSync.OnenoteAddin
 		private void ShowSettingsForm(dynamic owner)
 		{
 			System.Windows.Forms.Application.EnableVisualStyles();
-			_settingForm = new SettingsForm();
+			_settingForm = new SettingsForm(_settingsRegPath);
 			_settingForm.Visible = false;
 			_settingForm.ShowDialog(owner);
 			_settingForm = null;

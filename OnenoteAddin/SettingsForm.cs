@@ -12,9 +12,21 @@ namespace RemarkableSync.OnenoteAddin
 {
     public partial class SettingsForm : Form
     {
-        public SettingsForm()
+        public enum RmConnectionMethod
         {
+            RmCloud = 0,
+            Ssh = 1
+        }
+
+        public static readonly string RmConnectionMethodConfig = "RmConnectionMethod";
+
+        private IConfigStore _configStore;
+
+        public SettingsForm(string settingsRegPath)
+        {
+            _configStore = new WinRegistryConfigStore(settingsRegPath);
             InitializeComponent();
+            getConnectionMethodFromConfig();
         }
 
         private async void btnRemarkableApply_Click(object sender, EventArgs e)
@@ -36,7 +48,7 @@ namespace RemarkableSync.OnenoteAddin
             ToggleLoadingIcon(true);
 
             string otc = textOtc.Text;
-            RmCloud rmClient = new RmCloud();
+            RmCloudDataSource rmClient = new RmCloudDataSource(_configStore);
             bool registerResult = await rmClient.RegisterWithOneTimeCode(otc);
 
             ToggleLoadingIcon(false);
@@ -77,7 +89,7 @@ namespace RemarkableSync.OnenoteAddin
             ToggleLoadingIcon(true);
             await Task.Run(() =>
             {
-                MyScriptClient myScriptClient = new MyScriptClient();
+                MyScriptClient myScriptClient = new MyScriptClient(_configStore);
                 myScriptClient.SetConfig(appKey, hmacKey);
             });
             ToggleLoadingIcon(false);
@@ -93,14 +105,87 @@ namespace RemarkableSync.OnenoteAddin
             {
                 Cursor.Current = Cursors.WaitCursor;
                 btnMyScriptApply.Enabled = false;
-                btnRemarkableApply.Enabled = false;
+                btnRemarkableCloudApply.Enabled = false;
             }
             else
             {
                 Cursor.Current = Cursors.Default;
                 btnMyScriptApply.Enabled = true;
-                btnRemarkableApply.Enabled = true;
+                btnRemarkableCloudApply.Enabled = true;
             }
+        }
+
+        private void radioButtonRmCloud_CheckedChanged(object sender, EventArgs e)
+        {
+            tableLayoutRmCloud.Enabled = radioButtonRmCloud.Checked;
+            setRmConnectionMethod(RmConnectionMethod.RmCloud);
+        }
+
+        private void radioButtonRmSsh_CheckedChanged(object sender, EventArgs e)
+        {
+            tableLayoutRmSsh.Enabled = radioButtonRmSsh.Checked;
+            setRmConnectionMethod(RmConnectionMethod.Ssh);
+        }
+
+        private void btnRemarkableSshApply_Click(object sender, EventArgs e)
+        {
+            if (textSshPassword.Text.Length == 0)
+            {
+                MessageBox.Show(this, "Please enter your reMarkable SSH password", "Enter SSH Password");
+                return;
+            }
+
+            Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
+            mapConfigs[RmSftpDataSource.SshPasswordConfig] = textSshPassword.Text;
+            mapConfigs[RmSftpDataSource.SshHostConfig] = "10.11.99.1";      // hard-coded to USB connection IP
+
+            if (_configStore.SetConfigs(mapConfigs))
+            {
+                MessageBox.Show(this, "SSH password saved.", "Success");
+                return;
+            }
+            else
+            {
+                MessageBox.Show(this, "Error saving SSH password.", "Error");
+                return;
+            }
+        }
+
+        private void setRmConnectionMethod(RmConnectionMethod connectionMethod)
+        {
+            Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
+            mapConfigs[RmConnectionMethodConfig] = connectionMethod.ToString("d");
+            _configStore.SetConfigs(mapConfigs);
+        }
+
+        private void getConnectionMethodFromConfig()
+        {
+            int connMethod = -1;
+            try
+            {
+                string connMethodString = _configStore.GetConfig(RmConnectionMethodConfig);
+                connMethod = Convert.ToInt32(connMethodString);
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine($"SettingsForm::getConnectionMethodFromConfig() - Failed to get RmConnectionMethod config with err: {err.Message}");
+                // will default to cloud
+            }
+
+            switch (connMethod)
+            {
+                case (int)SettingsForm.RmConnectionMethod.Ssh:
+                    radioButtonRmCloud.Checked = false;
+                    radioButtonRmSsh.Checked = true;
+                    break;
+                case (int)SettingsForm.RmConnectionMethod.RmCloud:
+                default:
+                    radioButtonRmCloud.Checked = true;
+                    radioButtonRmSsh.Checked = false;
+                    break;
+            }
+            radioButtonRmCloud_CheckedChanged(null, null);
+            radioButtonRmSsh_CheckedChanged(null, null);
         }
     }
 }

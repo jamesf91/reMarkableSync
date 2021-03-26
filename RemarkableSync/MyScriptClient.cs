@@ -38,17 +38,19 @@ namespace RemarkableSync
             public int[] y { get; set; }
         }
 
-        private static string ConfigFile = ".myscript";
         private static string AppKeyName = "appkey";
         private static string HmacKeyName = "hmackey";
+        private static string EmptyKey = "****";
 
         private string _appKey;
         private string _hmacKey;
+        private IConfigStore _configStore;
 
-        public MyScriptClient()
+        public MyScriptClient(IConfigStore configStore)
         {
             _appKey = "";
             _hmacKey = "";
+            _configStore = configStore;
             _client = new HttpClient();
             LoadConfig();
         }
@@ -172,48 +174,18 @@ namespace RemarkableSync
 
         private void LoadConfig()
         {
-            Dictionary<string, string> config = new Dictionary<string, string>();
-            try
-            {
-                string configFilePath = GetConfigPath();
-                foreach (string line in File.ReadLines(configFilePath))
-                {
-                    int delimPos = line.IndexOf(':');
-                    if (delimPos == -1)
-                        continue;
-                    config.Add(line.Substring(0, delimPos).Trim(), line.Substring(delimPos + 1).Trim());
-                }
-            }
-            catch (Exception err)
-            {
-                Console.WriteLine($"Unable to load token from config file. Err = {err.Message}");
-            }
-
-            if (config.ContainsKey(AppKeyName))
-                _appKey = config[AppKeyName];
-
-            if (config.ContainsKey(HmacKeyName))
-                _hmacKey = config[HmacKeyName];
+            string appKey = _configStore.GetConfig(AppKeyName);
+            string hmacKey = _configStore.GetConfig(HmacKeyName);
+            _appKey = appKey == EmptyKey ? "" : appKey;
+            _hmacKey = hmacKey == EmptyKey ? "" : hmacKey;
         }
 
         private void WriteConfig()
         {
-            StreamWriter file = new StreamWriter(GetConfigPath());
-            if (_appKey?.Length > 0)
-            {
-                file.WriteLine(String.Format("{0}: {1}", AppKeyName, _appKey));
-            }
-            if (_hmacKey?.Length > 0)
-            {
-                file.WriteLine(String.Format("{0}: {1}", HmacKeyName, _hmacKey));
-            }
-            file.Close();
+            Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
+            mapConfigs[AppKeyName] = _appKey?.Length > 0 ? _appKey : EmptyKey;
+            mapConfigs[HmacKeyName] = _hmacKey?.Length > 0 ? _hmacKey : EmptyKey;
+            _configStore.SetConfigs(mapConfigs);
         }
-
-        private string GetConfigPath()
-        {
-            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\" + ConfigFile;
-        }
-
     }
 }
