@@ -65,13 +65,20 @@ namespace RemarkableSync
                 return false;
             }
 
-
+            try
+            {
+                Registry.CurrentUser.CreateSubKey(_regKeyPath);
                 var settingsKey = Registry.CurrentUser.OpenSubKey(_regKeyPath, true);
                 foreach (var encryptedConfig in encryptedConfigs)
                 {
                     settingsKey.SetValue(encryptedConfig.Key, encryptedConfig.Value);
                 }
-
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine($"WinRegistryConfigStore::SetConfigs() - Failed to write to registry. Error: {err.Message}");
+                return false;
+            }
 
             return true;
         }
