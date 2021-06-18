@@ -118,13 +118,19 @@ namespace RemarkableSync.OnenoteAddin
         private void radioButtonRmCloud_CheckedChanged(object sender, EventArgs e)
         {
             tableLayoutRmCloud.Enabled = radioButtonRmCloud.Checked;
-            setRmConnectionMethod(RmConnectionMethod.RmCloud);
+            if (radioButtonRmCloud.Checked && sender != null)
+            {
+                setRmConnectionMethod(RmConnectionMethod.RmCloud);
+            }
         }
 
         private void radioButtonRmSsh_CheckedChanged(object sender, EventArgs e)
         {
             tableLayoutRmSsh.Enabled = radioButtonRmSsh.Checked;
-            setRmConnectionMethod(RmConnectionMethod.Ssh);
+            if (radioButtonRmSsh.Checked && sender != null)
+            {
+                setRmConnectionMethod(RmConnectionMethod.Ssh);
+            }
         }
 
         private void btnRemarkableSshApply_Click(object sender, EventArgs e)
@@ -153,6 +159,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private void setRmConnectionMethod(RmConnectionMethod connectionMethod)
         {
+            Console.WriteLine($"SettingsForm::setRmConnectionMethod() - Setting connection method to {connectionMethod.ToString()}");
             Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
             mapConfigs[RmConnectionMethodConfig] = connectionMethod.ToString("d");
             _configStore.SetConfigs(mapConfigs);

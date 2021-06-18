@@ -19,8 +19,8 @@ namespace RemarkableSync
         private static string EmptyToken = "****";
         private static string UserAgent = "rmapi";
         private static string Device = "desktop-windows";
-        private static string DeviceTokenUrl = "https://my.remarkable.com/token/json/2/device/new";
-        private static string UserTokenUrl = "https://my.remarkable.com/token/json/2/user/new";
+        private static string DeviceTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/device/new";
+        private static string UserTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/user/new";
         private static string BaseUrl = "https://document-storage-production-dot-remarkable-production.appspot.com"; 
 
         private string _devicetoken;
@@ -196,6 +196,7 @@ namespace RemarkableSync
                 url = BaseUrl + url;
             }
 
+            Console.WriteLine($"Request() -  url is: {url}");
             var request = new HttpRequestMessage();
             request.RequestUri = new Uri(url);
             request.Method = method;
