@@ -19,10 +19,16 @@ namespace RemarkableSync
         private static string EmptyToken = "****";
         private static string UserAgent = "rmapi";
         private static string Device = "desktop-windows";
-        private static string DeviceTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/device/new";
-        private static string UserTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/user/new";
-        private static string BaseUrl = "https://document-storage-production-dot-remarkable-production.appspot.com"; 
+        private static string DefaultDeviceTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/device/new";
+        private static string DefaultUserTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/user/new";
+        private static string DefaultBaseUrl = "https://document-storage-production-dot-remarkable-production.appspot.com";
+        private static string CustomDeviceTokenUrlName = "CustomDeviceTokenUrl";
+        private static string CustomUserTokenUrlName = "CustomUserTokenUrl";
+        private static string CustomBaseUrlName = "CustomBaseUrl";
 
+        private string _deviceTokenUrl;
+        private string _userTokenUrl;
+        private string _baseUrl;
         private string _devicetoken;
         private string _usertoken;
         private bool _initialized;
@@ -30,7 +36,7 @@ namespace RemarkableSync
         private HttpClient _client;
         private IConfigStore _configStore;
 
-        public RmCloudDataSource(IConfigStore configStore)
+        public RmCloudDataSource(IConfigStore configStore, IConfigStore hiddenConfigStore = null)
         {
             _usertoken = null;
             _devicetoken = null;
@@ -38,7 +44,12 @@ namespace RemarkableSync
             _configStore = configStore;
 
             _client = new HttpClient();
-            _client.DefaultRequestHeaders.Add("user-agent", UserAgent);  
+            _client.DefaultRequestHeaders.Add("user-agent", UserAgent);
+
+            // check for hidden configs
+            _deviceTokenUrl = hiddenConfigStore?.GetConfig(CustomDeviceTokenUrlName) ?? DefaultDeviceTokenUrl;
+            _userTokenUrl = hiddenConfigStore?.GetConfig(CustomUserTokenUrlName) ?? DefaultUserTokenUrl;
+            _baseUrl = hiddenConfigStore?.GetConfig(CustomBaseUrlName) ?? DefaultBaseUrl;
         }
 
         public async Task<bool> RegisterWithOneTimeCode(string oneTimeCode)
@@ -55,7 +66,7 @@ namespace RemarkableSync
                 Console.WriteLine($"RmCloudDataSource::RegisterWithOneTimeCode() - registring with code: {oneTimeCode}");
                 HttpResponseMessage response = await Request(
                     HttpMethod.Post,
-                    DeviceTokenUrl,
+                    _deviceTokenUrl,
                     null,
                     new ByteArrayContent(Encoding.ASCII.GetBytes(requestString)));
 
@@ -193,7 +204,7 @@ namespace RemarkableSync
             {
                 if (!url.StartsWith("/"))
                     url = "/" + url;
-                url = BaseUrl + url;
+                url = _baseUrl + url;
             }
 
             Console.WriteLine($"Request() -  url is: {url}");
@@ -228,7 +239,7 @@ namespace RemarkableSync
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Authorization", $"Bearer {_devicetoken}");
 
-            HttpResponseMessage response = await Request(HttpMethod.Post, UserTokenUrl, header, null);
+            HttpResponseMessage response = await Request(HttpMethod.Post, _userTokenUrl, header, null);
             if (response.IsSuccessStatusCode)
             {
                 byte[] responseContent = response.Content.ReadAsByteArrayAsync().Result;
