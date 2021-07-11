@@ -43,10 +43,12 @@ namespace RemarkableSync.OnenoteAddin
         private IRmDataSource _rmDataSource;
         private Application _application;
         private IConfigStore _configStore;
+        private string _settingsRegPath;
 
         public RmDownloadForm(Application application, string settingsRegPath)
         {
-            _configStore = new WinRegistryConfigStore(settingsRegPath);
+            _settingsRegPath = settingsRegPath;
+            _configStore = new WinRegistryConfigStore(_settingsRegPath);
             _application = application;
 
             InitializeComponent();
@@ -84,7 +86,7 @@ namespace RemarkableSync.OnenoteAddin
                             break;
                         case (int)SettingsForm.RmConnectionMethod.RmCloud:
                         default:
-                            _rmDataSource = new RmCloudDataSource(_configStore);
+                            _rmDataSource = new RmCloudDataSource(_configStore, new WinRegistryConfigStore(_settingsRegPath, false));
                             Console.WriteLine("Using rm cloud data source");
                             break;
                     }

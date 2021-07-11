@@ -10,10 +10,12 @@ namespace RemarkableSync
     public class WinRegistryConfigStore : IConfigStore
     {
         private string _regKeyPath;
+        private bool _encrypt;
 
-        public WinRegistryConfigStore(string regKeyPath)
+        public WinRegistryConfigStore(string regKeyPath, bool encrypt = true)
         {
             _regKeyPath = regKeyPath;
+            _encrypt = encrypt;
         }
 
         public string GetConfig(string configName)
@@ -38,7 +40,14 @@ namespace RemarkableSync
 
             try
             {
-                return Encoding.UTF8.GetString(DecryptData(Convert.FromBase64String(regValue)));
+                if (_encrypt)
+                {
+                    return Encoding.UTF8.GetString(DecryptData(Convert.FromBase64String(regValue)));
+                }
+                else
+                {
+                    return regValue;
+                }
             }
             catch (Exception err)
             {
@@ -49,29 +58,37 @@ namespace RemarkableSync
 
         public bool SetConfigs(Dictionary<string, string> configs)
         {
-            List<KeyValuePair<string, string>> encryptedConfigs = null;
-            try
+            List<KeyValuePair<string, string>> processedConfigs = null;
+            if (_encrypt)
             {
-                // to byte[], encrypt, then to base 64 string
-                var rawData = from config in configs
-                              select new KeyValuePair<string, string>(
-                                  config.Key,
-                                  Convert.ToBase64String(EncryptData(Encoding.UTF8.GetBytes(config.Value))));
-                encryptedConfigs = rawData.ToList();
+                try
+                {
+                    // to byte[], encrypt, then to base 64 string
+                    var rawData = from config in configs
+                                  select new KeyValuePair<string, string>(
+                                      config.Key,
+                                      Convert.ToBase64String(EncryptData(Encoding.UTF8.GetBytes(config.Value))));
+                    processedConfigs = rawData.ToList();
+                }
+                catch (Exception err)
+                {
+                    Console.WriteLine($"WinRegistryConfigStore::SetConfigs() - Failed to encrypt all configs. Error: {err.Message}");
+                    return false;
+                }
             }
-            catch (Exception err)
+            else
             {
-                Console.WriteLine($"WinRegistryConfigStore::SetConfigs() - Failed to encrypt all configs. Error: {err.Message}");
-                return false;
+                processedConfigs = (from config in configs
+                                    select new KeyValuePair<string, string>(config.Key, config.Value)).ToList();
             }
 
             try
             {
                 Registry.CurrentUser.CreateSubKey(_regKeyPath);
                 var settingsKey = Registry.CurrentUser.OpenSubKey(_regKeyPath, true);
-                foreach (var encryptedConfig in encryptedConfigs)
+                foreach (var processedConfig in processedConfigs)
                 {
-                    settingsKey.SetValue(encryptedConfig.Key, encryptedConfig.Value);
+                    settingsKey.SetValue(processedConfig.Key, processedConfig.Value);
                 }
             }
             catch (Exception err)
