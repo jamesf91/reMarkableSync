@@ -91,10 +91,25 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OnenoteAddin\OnenoteAddin.csproj">
+      <Project>{6fa7bd3b-28c8-4b93-b0ac-99f022986488}</Project>
+      <Name>OnenoteAddin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RemarkableSync\RemarkableSync.csproj">
       <Project>{090b923f-25a0-4204-846c-71c0c7f50743}</Project>
       <Name>RemarkableSync</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Interop.OneNote">
+      <Guid>{0EA692EE-BB50-4E3C-AEF0-356D91732725}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

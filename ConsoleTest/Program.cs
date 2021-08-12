@@ -5,8 +5,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using RemarkableSync.RmLine;
+using RemarkableSync.OnenoteAddin;
+using Application = Microsoft.Office.Interop.OneNote.Application;
+
 
 namespace RemarkableSync
 {
@@ -30,7 +32,15 @@ namespace RemarkableSync
             Bitmap image = RmLinesDrawer.DrawPage(page);
             image.Save(outImagePath, ImageFormat.Png);
 
-            Console.WriteLine("Done");
+            Console.WriteLine("Done exporting image");
+
+            Application oneNoteApp = new Application();
+            string thisPage = oneNoteApp.Windows.CurrentWindow.CurrentPageId;
+            OneNoteHelper helper = new OneNoteHelper(oneNoteApp);
+            Bitmap[] images = { image };
+            helper.AppendPageImages(thisPage, images, 0.5);
+
+            Console.WriteLine("Done inserting image");
             Console.ReadKey();
         }
     }
