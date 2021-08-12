@@ -7,5 +7,8 @@
 packages/
 
 
+*.exe
+*.log
 *.tlb
 *.msi
+*.vcxproj.user

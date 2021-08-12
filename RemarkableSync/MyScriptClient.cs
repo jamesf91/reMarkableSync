@@ -147,7 +147,7 @@ namespace RemarkableSync
             {
                 foreach (RmStroke rmStroke in rmLayer.Objects)
                 {
-                    if ((rmStroke.Pen == PenEnum.RUBBER) || (rmStroke.Pen == PenEnum.RUBBER_AREA) || (rmStroke.Pen == PenEnum.ERASE_ALL))
+                    if (!rmStroke.IsVisible())
                     {
                         continue;
                     }

@@ -952,6 +952,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_576AC7FBAF222A4A2C8A5C33EF5E7DE4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_8B7F46DA6602F62C787675E202F353E6"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -965,12 +971,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_9C576A850EEF8D64F1489FE36B1A038D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_576AC7FBAF222A4A2C8A5C33EF5E7DE4"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -5604,15 +5604,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OneNoteAddin"
-        "ProductCode" = "8:{9CDF26E3-4DD9-43FD-839A-F655CF6BD901}"
-        "PackageCode" = "8:{88C8A10D-A260-4537-A6BF-531B20D3D65E}"
+        "ProductCode" = "8:{496F9A70-D728-4675-8EDE-180EBD09A45B}"
+        "PackageCode" = "8:{B88DDB4A-EDB6-4D54-841E-B23B494A5EC2}"
         "UpgradeCode" = "8:{0FE24561-6E49-4553-A3EE-0A6A59847324}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.0.2"
+        "ProductVersion" = "8:2.0.3"
         "Manufacturer" = "8:reMarkableSync"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
