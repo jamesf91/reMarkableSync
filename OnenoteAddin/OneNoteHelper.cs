@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +11,7 @@ using Microsoft.Office.Interop.OneNote;
 
 namespace RemarkableSync.OnenoteAddin
 {
-    class OneNoteHelper
+    public class OneNoteHelper
     {
         static readonly List<string> PageObjectNames = new List<string>()
         {
@@ -19,6 +22,12 @@ namespace RemarkableSync.OnenoteAddin
             "MediaFile",
             "FutureObject"
         };
+
+        static private int PageXOffset = 36;
+        static private int PageYOffset = 86;
+        static private int ImageGap = 50;
+        static private string PositionElementName = "Position";
+        static private string SizeElementName = "Size";
 
         private Application _application;
         private XNamespace _ns;
@@ -121,6 +130,51 @@ namespace RemarkableSync.OnenoteAddin
             _application.UpdatePageContent(doc.ToString(), DateTime.MinValue, XMLSchema.xs2013);
         }
 
+        public void AppendPageImages(string pageId, List<Bitmap> images, double zoom = 1.0)
+        {
+            string xml;
+            _application.GetPageContent(pageId, out xml, PageInfo.piAll, XMLSchema.xs2013);
+            var pageDoc = XDocument.Parse(xml);
+            
+            int yPos = GetBottomContentYPos(pageDoc);
+
+            foreach(var image in images)
+            {
+                yPos = AppendImage(pageDoc, image, zoom, yPos) + ImageGap;
+            }
+
+            _application.UpdatePageContent(pageDoc.ToString(), DateTime.MinValue, XMLSchema.xs2013);
+        }
+
+        private int AppendImage(XDocument pageDoc, Bitmap bitmap, double zoom, int yPos)
+        {
+            int height = (int) Math.Round(bitmap.Height * zoom);
+            int width = (int)Math.Round(bitmap.Width * zoom);
+
+            var ns = pageDoc.Root.Name.Namespace;
+            XElement imageEl = new XElement(ns + "Image");
+            
+            XElement positionEl = new XElement(ns + "Position");
+            positionEl.Add(new XAttribute("x", PageXOffset));
+            positionEl.Add(new XAttribute("y", yPos));
+
+            XElement sizeEl = new XElement(ns + "Size");
+            sizeEl.Add(new XAttribute("width", width));
+            sizeEl.Add(new XAttribute("height", height));
+
+            XElement dataEl = new XElement(ns + "Data");
+            MemoryStream stream = new MemoryStream();
+            bitmap.Save(stream, ImageFormat.Png);
+            dataEl.Value = Convert.ToBase64String(stream.ToArray());
+
+            imageEl.Add(positionEl);
+            imageEl.Add(sizeEl);
+            imageEl.Add(dataEl);
+
+            pageDoc.Root.Add(imageEl);
+            return (yPos + height);
+        }
+
         private void GetNamespace()
         {
             string xml;
@@ -130,5 +184,44 @@ namespace RemarkableSync.OnenoteAddin
             _ns = doc.Root.Name.Namespace;
         }
 
+        private int GetBottomContentYPos(XDocument pageDoc)
+        {
+            var ns = pageDoc.Root.Name.Namespace;
+            int lowestYPos = PageYOffset;
+
+            foreach(var child in pageDoc.Root.Elements())
+            {
+                var posEl = child.Element(ns + PositionElementName);
+                var sizeEl = child.Element(ns + SizeElementName);
+                if (posEl == null || sizeEl == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    int yPos = 0;
+                    int height = 0;
+                    string yAttribValue = posEl.Attribute("y")?.Value;
+                    if (yAttribValue != null)
+                    {
+                        yPos = (int)double.Parse(yAttribValue);
+                    }
+                    string heightAttribValue = sizeEl.Attribute("height")?.Value;
+                    if (heightAttribValue != null)
+                    {
+                        height = (int)double.Parse(heightAttribValue);
+                    }
+
+                    lowestYPos = Math.Max(lowestYPos, (yPos + height));
+                }
+                catch (Exception err)
+                {
+                    Console.WriteLine($"OneNoteHelper.GetBottomContentYPos() - error: {err.Message}");
+                    continue;
+                }
+            }
+            return lowestYPos;
+        }
     }
 }

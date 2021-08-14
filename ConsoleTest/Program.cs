@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using RemarkableSync.RmLine;
+using RemarkableSync.OnenoteAddin;
+using Application = Microsoft.Office.Interop.OneNote.Application;
+
 
 namespace RemarkableSync
 {
@@ -12,41 +16,31 @@ namespace RemarkableSync
     {
         static void Main(string[] args)
         {
-            string settingsRegPath = @"Software\Microsoft\Office\OneNote\AddInsData\RemarkableSync.OnenoteAddin";
-            IConfigStore _configStore = new WinRegistryConfigStore(settingsRegPath);
+            const string testFilePath = @"D:\WIP\remarkable\8920031f-06fe-4f41-90f6-d985c12718d9\5d476d18-7d06-480d-84d8-71686ba91d19.rm";
+            const string outImagePath = @"D:\WIP\remarkable\image.png";
+            RmPage page = null;
 
-            // setup
-            Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
-            mapConfigs["sshHost"] = "10.11.99.1";
-            mapConfigs["SshPassword"] = "ABvontxEol";
-            _configStore.SetConfigs(mapConfigs);
-
-            // end setup
-
-            IRmDataSource dataSource = new RmSftpDataSource(_configStore);
-            //IRmDataSource dataSource = new RmCloudDataSource(_configStore);
-
-            List<RmItem> rootItems = dataSource.GetItemHierarchy().Result;
-            RmItem item = (from root in rootItems
-                where root.Type == RmItem.DocumentType
-                select root).ToArray()[0];
-
-            List<RmPage> pages = new List<RmPage>();
-
-            using (RmDownloadedDoc doc = dataSource.DownloadDocument(item).Result)
+            using (FileStream fileStream = File.OpenRead(testFilePath))
             {
-                for (int i = 0; i < doc.PageCount; ++i)
+                using (MemoryStream stream = new MemoryStream())
                 {
-                    pages.Add(doc.GetPageContent(i));
+                    fileStream.CopyTo(stream);
+                    page = RmPage.ParseStream(stream);
                 }
             }
 
-            MyScriptClient hwrClient = new MyScriptClient(_configStore);
-            MyScriptResult result = hwrClient.RequestHwr(pages).Result;
-            if (result != null)
-            {
-                Console.WriteLine($"HWR result: {result.label}");
-            }
+            Bitmap image = RmLinesDrawer.DrawPage(page);
+            image.Save(outImagePath, ImageFormat.Png);
+
+            Console.WriteLine("Done exporting image");
+
+            Application oneNoteApp = new Application();
+            string thisPage = oneNoteApp.Windows.CurrentWindow.CurrentPageId;
+            OneNoteHelper helper = new OneNoteHelper(oneNoteApp);
+            List<Bitmap> images = new List<Bitmap> { image };
+            helper.AppendPageImages(thisPage, images, 0.5);
+
+            Console.WriteLine("Done inserting image");
             Console.ReadKey();
         }
     }

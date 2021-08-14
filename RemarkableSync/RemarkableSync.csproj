@@ -79,6 +79,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
       <Private>True</Private>
@@ -111,6 +112,7 @@
     <Compile Include="RmDownloadedDoc.cs" />
     <Compile Include="RmItem.cs" />
     <Compile Include="RmLines.cs" />
+    <Compile Include="RmLinesDrawer.cs" />
     <Compile Include="RmSftpDataSource.cs" />
     <Compile Include="RmSftpDownloadedDoc.cs" />
     <Compile Include="RmSftpJsonTypes.cs" />

@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemarkableSync", "Remarkabl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{C23909A9-5D87-4E94-B69D-B87150054B3F}"
 	ProjectSection(ProjectDependencies) = postProject
+		{6FA7BD3B-28C8-4B93-B0AC-99F022986488} = {6FA7BD3B-28C8-4B93-B0AC-99F022986488}
 		{090B923F-25A0-4204-846C-71C0C7F50743} = {090B923F-25A0-4204-846C-71C0C7F50743}
 	EndProjectSection
 EndProject

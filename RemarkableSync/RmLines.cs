@@ -167,6 +167,19 @@ namespace RemarkableSync.RmLine
         {
             return $"Stroke: pen={Pen.ToString()}, color={Colour.ToString()}, width={Width,-5: F4}, nobjs={_objects.Count}";
         }
+
+        public bool IsVisible()
+        {
+            switch(Pen)
+            {
+                case PenEnum.RUBBER: 
+                case PenEnum.RUBBER_AREA: 
+                case PenEnum.ERASE_ALL:
+                    return false;
+                default:
+                    return true;
+            }
+        }
     }
 
     class RmSegment: ByteableList
