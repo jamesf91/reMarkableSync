@@ -130,7 +130,7 @@ namespace RemarkableSync.OnenoteAddin
             _application.UpdatePageContent(doc.ToString(), DateTime.MinValue, XMLSchema.xs2013);
         }
 
-        public void AppendPageImages(string pageId, Bitmap[] images, double zoom = 1.0)
+        public void AppendPageImages(string pageId, List<Bitmap> images, double zoom = 1.0)
         {
             string xml;
             _application.GetPageContent(pageId, out xml, PageInfo.piAll, XMLSchema.xs2013);

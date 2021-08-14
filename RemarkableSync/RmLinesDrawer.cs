@@ -12,6 +12,13 @@ namespace RemarkableSync
 {
     public class RmLinesDrawer
     {
+        static public List<Bitmap> DrawPages(List<RmPage> pages)
+        {
+            List<Bitmap> images = (from page in pages
+                                  select DrawPage(page)).ToList();
+            return images;
+        }
+
         static public Bitmap DrawPage(RmPage page)
         {
             Bitmap image = new Bitmap(RmConstants.X_MAX, RmConstants.Y_MAX);

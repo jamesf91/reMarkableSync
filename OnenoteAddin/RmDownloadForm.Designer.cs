@@ -35,16 +35,18 @@ namespace RemarkableSync.OnenoteAddin
             this.lblInfo = new System.Windows.Forms.Label();
             this.btnOk = new System.Windows.Forms.Button();
             this.rmTreeView = new System.Windows.Forms.TreeView();
+            this.chkImportAsGraphics = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel
             // 
             resources.ApplyResources(this.tableLayoutPanel, "tableLayoutPanel");
-            this.tableLayoutPanel.Controls.Add(this.btnCancel, 1, 2);
+            this.tableLayoutPanel.Controls.Add(this.btnCancel, 1, 3);
             this.tableLayoutPanel.Controls.Add(this.lblInfo, 0, 1);
-            this.tableLayoutPanel.Controls.Add(this.btnOk, 0, 2);
+            this.tableLayoutPanel.Controls.Add(this.btnOk, 0, 3);
             this.tableLayoutPanel.Controls.Add(this.rmTreeView, 0, 0);
+            this.tableLayoutPanel.Controls.Add(this.chkImportAsGraphics, 0, 2);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             // 
             // btnCancel
@@ -73,6 +75,12 @@ namespace RemarkableSync.OnenoteAddin
             resources.ApplyResources(this.rmTreeView, "rmTreeView");
             this.rmTreeView.Name = "rmTreeView";
             // 
+            // chkImportAsGraphics
+            // 
+            resources.ApplyResources(this.chkImportAsGraphics, "chkImportAsGraphics");
+            this.chkImportAsGraphics.Name = "chkImportAsGraphics";
+            this.chkImportAsGraphics.UseVisualStyleBackColor = true;
+            // 
             // RmDownloadForm
             // 
             resources.ApplyResources(this, "$this");
@@ -93,5 +101,6 @@ namespace RemarkableSync.OnenoteAddin
         private System.Windows.Forms.Label lblInfo;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.TreeView rmTreeView;
+        private System.Windows.Forms.CheckBox chkImportAsGraphics;
     }
 }

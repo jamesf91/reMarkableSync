@@ -1,6 +1,7 @@
 ﻿using RemarkableSync.RmLine;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -124,11 +125,12 @@ namespace RemarkableSync.OnenoteAddin
             }
 
             RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
+            bool importAsGraphics = chkImportAsGraphics.Checked;
             Console.WriteLine($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
 
             try
             {
-                bool success = await ImportDocument(rmTreeNode);
+                bool success = await ImportDocument(rmTreeNode, importAsGraphics);
                 Console.WriteLine("Import " + (success ? "successful" : "failed"));
             }
             catch (Exception err)
@@ -141,7 +143,7 @@ namespace RemarkableSync.OnenoteAddin
         }
 
 
-        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode)
+        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, bool importAsGraphics)
         {
             if (rmTreeNode.IsCollection)
             {
@@ -167,15 +169,22 @@ namespace RemarkableSync.OnenoteAddin
                 }
             }
 
-            lblInfo.Text = $"Digitising {rmTreeNode.VisibleName}...";
+            return importAsGraphics ?
+                ImportContentAsGraphics(pages, rmTreeNode.VisibleName) : 
+                await ImportContentAsText(pages, rmTreeNode.VisibleName);
+        }
+
+        private async Task<bool> ImportContentAsText(List<RmPage> pages, string visibleName)
+        {
+            lblInfo.Text = $"Digitising {visibleName}...";
             MyScriptClient hwrClient = new MyScriptClient(_configStore);
             Console.WriteLine("ImportDocument() - requesting hand writing recognition");
             MyScriptResult result = await hwrClient.RequestHwr(pages);
 
             if (result != null)
             {
-                UpdateOneNoteWithHwrResult(rmTreeNode.VisibleName, result);
-                lblInfo.Text = $"Imported {rmTreeNode.VisibleName} successfully.";
+                UpdateOneNoteWithHwrResult(visibleName, result);
+                lblInfo.Text = $"Imported {visibleName} successfully.";
                 Task.Run(() =>
                 {
                     Thread.Sleep(500);
@@ -195,6 +204,24 @@ namespace RemarkableSync.OnenoteAddin
             string currentSectionId = oneNoteHelper.GetCurrentSectionId();
             string newPageId = oneNoteHelper.CreatePage(currentSectionId, name);
             oneNoteHelper.AddPageContent(newPageId, result.label);
+        }
+
+        private bool ImportContentAsGraphics(List<RmPage> pages, string visibleName)
+        {
+            lblInfo.Text = $"Importing {visibleName} as graphics...";
+            OneNoteHelper oneNoteHelper = new OneNoteHelper(_application);
+            string currentSectionId = oneNoteHelper.GetCurrentSectionId();
+            string newPageId = oneNoteHelper.CreatePage(currentSectionId, visibleName);
+
+            oneNoteHelper.AppendPageImages(newPageId, RmLinesDrawer.DrawPages(pages), 0.5);
+
+            lblInfo.Text = $"Imported {visibleName} successfully.";
+            Task.Run(() =>
+            {
+                Thread.Sleep(500);
+            }).Wait();
+            Close();
+            return true;
         }
 
         private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)

@@ -37,7 +37,7 @@ namespace RemarkableSync
             Application oneNoteApp = new Application();
             string thisPage = oneNoteApp.Windows.CurrentWindow.CurrentPageId;
             OneNoteHelper helper = new OneNoteHelper(oneNoteApp);
-            Bitmap[] images = { image };
+            List<Bitmap> images = new List<Bitmap> { image };
             helper.AppendPageImages(thisPage, images, 0.5);
 
             Console.WriteLine("Done inserting image");
