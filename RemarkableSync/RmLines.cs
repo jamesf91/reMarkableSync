@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -72,7 +73,7 @@ namespace RemarkableSync.RmLine
             }
         }
 
-        public virtual void FromStream( MemoryStream buffer)
+        public virtual void FromStream(MemoryStream buffer, List<string> layerNames)
         {
             byte[] numberBytes = new byte[4];
             buffer.Read(numberBytes, 0, numberBytes.Length);
@@ -80,7 +81,7 @@ namespace RemarkableSync.RmLine
             for(int i = 0; i < numChildren; ++i)
             {
                 ByteableList child = CreateChild();
-                child.FromStream( buffer);
+                child.FromStream( buffer, layerNames);
                 Append(child);
             }
         }
@@ -98,11 +99,11 @@ namespace RemarkableSync.RmLine
 
     public class RmPage: ByteableList
     {
-        public static RmPage ParseStream( MemoryStream stream)
+        public static RmPage ParseStream(MemoryStream contentStream, List<string> layerNames)
         {
             RmPage page = new RmPage();
-            stream.Seek(0, SeekOrigin.Begin);
-            page.FromStream(stream);
+            contentStream.Seek(0, SeekOrigin.Begin);
+            page.FromStream(contentStream, layerNames);
             return page;
         }
 
@@ -113,12 +114,12 @@ namespace RemarkableSync.RmLine
             return new RmLayer();
         }
 
-        public override void FromStream( MemoryStream buffer)
+        public override void FromStream( MemoryStream buffer, List<string> layerNames)
         {
             byte[] headerBytes = new byte[43];
             buffer.Read(headerBytes, 0, headerBytes.Length);
             Header = Encoding.ASCII.GetString(headerBytes, 0, headerBytes.Length);
-            base.FromStream( buffer);
+            base.FromStream(buffer, layerNames);
         }
 
         public override string ToString()
@@ -129,9 +130,27 @@ namespace RemarkableSync.RmLine
 
     class RmLayer:ByteableList
     {
+        public Color? LayerColor { get; set; }
+
         public override ByteableList CreateChild()
         {
             return new RmStroke();
+        }
+
+        public override void FromStream(MemoryStream buffer, List<string> layerNames)
+        {
+            LayerColor = null;
+            if (layerNames.Count > 0)
+            {
+                var color = Color.FromName(layerNames[0]);
+                if (color.IsKnownColor)
+                {
+                    LayerColor = color;
+                }
+                layerNames.RemoveAt(0);
+            }
+            
+            base.FromStream(buffer, layerNames);
         }
 
         public override string ToString()
@@ -151,7 +170,7 @@ namespace RemarkableSync.RmLine
             return new RmSegment();
         }
 
-        public override void FromStream( MemoryStream buffer)
+        public override void FromStream(MemoryStream buffer, List<string> layerNames)
         {
             byte[] strokeHeaderBytes = new byte[20];
             buffer.Read(strokeHeaderBytes, 0, strokeHeaderBytes.Length);
@@ -160,7 +179,7 @@ namespace RemarkableSync.RmLine
             Colour = (ColourEnum)BitConverter.ToInt32(strokeHeaderBytes, 4);
             Width = BitConverter.ToSingle(strokeHeaderBytes, 12);
 
-            base.FromStream( buffer);
+            base.FromStream(buffer, layerNames);
         }
 
         public override string ToString()
@@ -196,7 +215,7 @@ namespace RemarkableSync.RmLine
             throw (new Exception("Segment has no children type"));
         }
 
-        public override void FromStream( MemoryStream buffer)
+        public override void FromStream( MemoryStream buffer, List<string> layerNames)
         {
             byte[] segmentBytes = new byte[24];
             buffer.Read(segmentBytes, 0, segmentBytes.Length);

@@ -27,6 +27,10 @@ namespace RemarkableSync
                     client.DownloadFile(sourceContentFolder + pageIDs[i]+ ".rm", file);
                     file.Flush();
                     file.Close();
+                    var metadataFile = File.OpenWrite(GetPageMetadataFilePath(i));
+                    client.DownloadFile(sourceContentFolder + pageIDs[i] + "-metadata.json", metadataFile);
+                    metadataFile.Flush();
+                    metadataFile.Close();
                 }
             }
             catch (Exception err)

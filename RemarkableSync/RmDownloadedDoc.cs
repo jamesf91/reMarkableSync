@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace RemarkableSync
@@ -14,6 +15,14 @@ namespace RemarkableSync
         protected string _id;
         protected int _pageCount;
 
+        internal class RmPageMetadata
+        {
+            public List<RmPageMetadataLayer> layers { get; set; }
+        }
+        internal class RmPageMetadataLayer
+        {
+            public string name { get; set; }
+        }
 
         public RmDownloadedDoc(string id)
         {
@@ -37,15 +46,16 @@ namespace RemarkableSync
 
             try
             {
-                using (FileStream fileStream = File.OpenRead(GetPageContentFilePath(pageNumber)))
+                List<string> layerNames = GetPageLayerNames(pageNumber);
+
+                using (FileStream contentFileStream = File.OpenRead(GetPageContentFilePath(pageNumber)))
+                using (MemoryStream contentStream = new MemoryStream())
                 {
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        fileStream.CopyTo(stream);
-                        RmPage page = RmPage.ParseStream(stream);
-                        return page;
-                    }
+                    contentFileStream.CopyTo(contentStream);
+                    RmPage page = RmPage.ParseStream(contentStream, layerNames);
+                    return page;
                 }
+                
             }
             catch (Exception err)
             {
@@ -81,9 +91,30 @@ namespace RemarkableSync
             return Path.Combine(_folderPath, _id, $"{pageNumber}.rm");
         }
 
+        protected string GetPageMetadataFilePath(int pageNumber)
+        {
+            return Path.Combine(_folderPath, _id, $"{pageNumber}-metadta.json");
+        }
+
         protected string GetPageContentFolderPath()
         {
             return Path.Combine(_folderPath, _id);
+        }
+
+        protected List<string> GetPageLayerNames(int pageNumber)
+        {
+            var layerNames = new List<string>();
+            var metadataJsonString = File.ReadAllText(GetPageMetadataFilePath(pageNumber));
+            try
+            {
+                RmPageMetadata metadata = JsonSerializer.Deserialize<RmPageMetadata>(metadataJsonString);
+                layerNames = (from layer in metadata.layers select layer.name).ToList();
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine($"RmDownloadedDoc::GetPageLayerNames() - RmPageMetadata json deseralizing failed with: {err.Message}.\n Content:\n{metadataJsonString}");
+            }
+            return layerNames;
         }
     }
 }
