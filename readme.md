@@ -15,7 +15,7 @@ Before using the addin, there is a one time setup to link the addin to your reMa
 
 ### Linking reMarkable tablet
 Go to the reMarkable tab in the OneNote ribbon and click on the Settings icon. The Settings window should appear.  
-Go to <https://my.remarkable.com/connect/desktop> for a new desktop client one-time code. Copy it into the "One Time Code" field in Settings window and click Apply. This will link OneNote as a new desktop client to your reMarkable Cloud account.
+Go to <https://my.remarkable.com/device/desktop/connect> for a new desktop client one-time code. Copy it into the "One Time Code" field in Settings window and click Apply. This will link OneNote as a new desktop client to your reMarkable Cloud account.
 
 ### Configure hand writing recognition
 The reMarkable OneNote addin uses MyScript (<https://www.myscript.com/>) as an external service to convert the handwritten stroke from reMarkable tablet into text. It is the same service used by the reMarkable device itself when selecting "Convert to text and send".
