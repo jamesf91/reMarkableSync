@@ -25,7 +25,7 @@ namespace RemarkableSync
                 using (MemoryStream stream = new MemoryStream())
                 {
                     fileStream.CopyTo(stream);
-                    page = RmPage.ParseStream(stream);
+                    page = RmPage.ParseStream(stream, new List<string>());
                 }
             }
 

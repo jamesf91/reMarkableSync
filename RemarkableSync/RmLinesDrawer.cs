@@ -40,28 +40,31 @@ namespace RemarkableSync
             {
                 if (stroke.IsVisible())
                 {
-                    DrawStroke(stroke, ref graphics);
+                    DrawStroke(stroke, ref graphics, layer.LayerColor);
                 }
             }
         }
 
-        static private void DrawStroke(RmStroke stroke, ref Graphics graphics)
+        static private void DrawStroke(RmStroke stroke, ref Graphics graphics, Color? color = null)
         {
-            Color color;
-            switch(stroke.Colour)
+            if (color == null)
             {
-                case ColourEnum.GREY:
-                    color = Color.Gray;
-                    break;
-                case ColourEnum.WHITE:
-                    color = Color.White;
-                    break;
-                case ColourEnum.BLACK:
-                default:
-                    color = Color.Black;
-                    break;
+                switch (stroke.Colour)
+                {
+                    case ColourEnum.GREY:
+                        color = Color.Gray;
+                        break;
+                    case ColourEnum.WHITE:
+                        color = Color.White;
+                        break;
+                    case ColourEnum.BLACK:
+                    default:
+                        color = Color.Black;
+                        break;
+                }
             }
-            Pen pen = new Pen(color, stroke.Width);
+
+            Pen pen = new Pen(color.GetValueOrDefault(Color.Black), stroke.Width);
 
             GraphicsPath path = new GraphicsPath();
             Point[] points = new Point[stroke.Objects.Count];
