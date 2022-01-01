@@ -36,7 +36,13 @@ namespace RemarkableSync.OnenoteAddin
             this.btnOk = new System.Windows.Forms.Button();
             this.rmTreeView = new System.Windows.Forms.TreeView();
             this.chkImportAsGraphics = new System.Windows.Forms.CheckBox();
+            this.tableLayoutGraphicWidth = new System.Windows.Forms.TableLayoutPanel();
+            this.lblGraphicWidth = new System.Windows.Forms.Label();
+            this.numericGraphicWidth = new System.Windows.Forms.NumericUpDown();
+            this.lblGraphicWidthUnit = new System.Windows.Forms.Label();
             this.tableLayoutPanel.SuspendLayout();
+            this.tableLayoutGraphicWidth.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericGraphicWidth)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel
@@ -47,6 +53,7 @@ namespace RemarkableSync.OnenoteAddin
             this.tableLayoutPanel.Controls.Add(this.btnOk, 0, 3);
             this.tableLayoutPanel.Controls.Add(this.rmTreeView, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.chkImportAsGraphics, 0, 2);
+            this.tableLayoutPanel.Controls.Add(this.tableLayoutGraphicWidth, 1, 2);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             // 
             // btnCancel
@@ -81,6 +88,34 @@ namespace RemarkableSync.OnenoteAddin
             this.chkImportAsGraphics.Name = "chkImportAsGraphics";
             this.chkImportAsGraphics.UseVisualStyleBackColor = true;
             // 
+            // tableLayoutGraphicWidth
+            // 
+            resources.ApplyResources(this.tableLayoutGraphicWidth, "tableLayoutGraphicWidth");
+            this.tableLayoutGraphicWidth.Controls.Add(this.lblGraphicWidth, 0, 0);
+            this.tableLayoutGraphicWidth.Controls.Add(this.numericGraphicWidth, 1, 0);
+            this.tableLayoutGraphicWidth.Controls.Add(this.lblGraphicWidthUnit, 2, 0);
+            this.tableLayoutGraphicWidth.Name = "tableLayoutGraphicWidth";
+            // 
+            // lblGraphicWidth
+            // 
+            resources.ApplyResources(this.lblGraphicWidth, "lblGraphicWidth");
+            this.lblGraphicWidth.Name = "lblGraphicWidth";
+            // 
+            // numericGraphicWidth
+            // 
+            resources.ApplyResources(this.numericGraphicWidth, "numericGraphicWidth");
+            this.numericGraphicWidth.Name = "numericGraphicWidth";
+            this.numericGraphicWidth.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            // 
+            // lblGraphicWidthUnit
+            // 
+            resources.ApplyResources(this.lblGraphicWidthUnit, "lblGraphicWidthUnit");
+            this.lblGraphicWidthUnit.Name = "lblGraphicWidthUnit";
+            // 
             // RmDownloadForm
             // 
             resources.ApplyResources(this, "$this");
@@ -90,6 +125,9 @@ namespace RemarkableSync.OnenoteAddin
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RmDownloadForm_FormClosing);
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
+            this.tableLayoutGraphicWidth.ResumeLayout(false);
+            this.tableLayoutGraphicWidth.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericGraphicWidth)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -102,5 +140,9 @@ namespace RemarkableSync.OnenoteAddin
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.TreeView rmTreeView;
         private System.Windows.Forms.CheckBox chkImportAsGraphics;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutGraphicWidth;
+        private System.Windows.Forms.Label lblGraphicWidth;
+        private System.Windows.Forms.NumericUpDown numericGraphicWidth;
+        private System.Windows.Forms.Label lblGraphicWidthUnit;
     }
 }
