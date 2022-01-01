@@ -126,11 +126,12 @@ namespace RemarkableSync.OnenoteAddin
 
             RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
             bool importAsGraphics = chkImportAsGraphics.Checked;
+            double zoom = (double)numericGraphicWidth.Value / 100.0;
             Console.WriteLine($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
 
             try
             {
-                bool success = await ImportDocument(rmTreeNode, importAsGraphics);
+                bool success = await ImportDocument(rmTreeNode, importAsGraphics, zoom);
                 Console.WriteLine("Import " + (success ? "successful" : "failed"));
             }
             catch (Exception err)
@@ -143,7 +144,7 @@ namespace RemarkableSync.OnenoteAddin
         }
 
 
-        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, bool importAsGraphics)
+        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, bool importAsGraphics, double zoom = 0.5)
         {
             if (rmTreeNode.IsCollection)
             {
@@ -170,7 +171,7 @@ namespace RemarkableSync.OnenoteAddin
             }
 
             return importAsGraphics ?
-                ImportContentAsGraphics(pages, rmTreeNode.VisibleName) : 
+                ImportContentAsGraphics(pages, rmTreeNode.VisibleName, zoom) : 
                 await ImportContentAsText(pages, rmTreeNode.VisibleName);
         }
 
@@ -206,14 +207,14 @@ namespace RemarkableSync.OnenoteAddin
             oneNoteHelper.AddPageContent(newPageId, result.label);
         }
 
-        private bool ImportContentAsGraphics(List<RmPage> pages, string visibleName)
+        private bool ImportContentAsGraphics(List<RmPage> pages, string visibleName, double zoom)
         {
             lblInfo.Text = $"Importing {visibleName} as graphics...";
             OneNoteHelper oneNoteHelper = new OneNoteHelper(_application);
             string currentSectionId = oneNoteHelper.GetCurrentSectionId();
             string newPageId = oneNoteHelper.CreatePage(currentSectionId, visibleName);
 
-            oneNoteHelper.AppendPageImages(newPageId, RmLinesDrawer.DrawPages(pages), 0.5);
+            oneNoteHelper.AppendPageImages(newPageId, RmLinesDrawer.DrawPages(pages), zoom);
 
             lblInfo.Text = $"Imported {visibleName} successfully.";
             Task.Run(() =>
