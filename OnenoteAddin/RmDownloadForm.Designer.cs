@@ -35,14 +35,18 @@ namespace RemarkableSync.OnenoteAddin
             this.lblInfo = new System.Windows.Forms.Label();
             this.btnOk = new System.Windows.Forms.Button();
             this.rmTreeView = new System.Windows.Forms.TreeView();
-            this.chkImportAsGraphics = new System.Windows.Forms.CheckBox();
             this.tableLayoutGraphicWidth = new System.Windows.Forms.TableLayoutPanel();
             this.lblGraphicWidth = new System.Windows.Forms.Label();
             this.numericGraphicWidth = new System.Windows.Forms.NumericUpDown();
             this.lblGraphicWidthUnit = new System.Windows.Forms.Label();
+            this.groupBoxImportOptions = new System.Windows.Forms.GroupBox();
+            this.radioBtnImportText = new System.Windows.Forms.RadioButton();
+            this.radioBtnImportGraphics = new System.Windows.Forms.RadioButton();
+            this.radioBtnImportBoth = new System.Windows.Forms.RadioButton();
             this.tableLayoutPanel.SuspendLayout();
             this.tableLayoutGraphicWidth.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericGraphicWidth)).BeginInit();
+            this.groupBoxImportOptions.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel
@@ -52,8 +56,8 @@ namespace RemarkableSync.OnenoteAddin
             this.tableLayoutPanel.Controls.Add(this.lblInfo, 0, 1);
             this.tableLayoutPanel.Controls.Add(this.btnOk, 0, 3);
             this.tableLayoutPanel.Controls.Add(this.rmTreeView, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.chkImportAsGraphics, 0, 2);
             this.tableLayoutPanel.Controls.Add(this.tableLayoutGraphicWidth, 1, 2);
+            this.tableLayoutPanel.Controls.Add(this.groupBoxImportOptions, 0, 2);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             // 
             // btnCancel
@@ -81,12 +85,6 @@ namespace RemarkableSync.OnenoteAddin
             this.tableLayoutPanel.SetColumnSpan(this.rmTreeView, 2);
             resources.ApplyResources(this.rmTreeView, "rmTreeView");
             this.rmTreeView.Name = "rmTreeView";
-            // 
-            // chkImportAsGraphics
-            // 
-            resources.ApplyResources(this.chkImportAsGraphics, "chkImportAsGraphics");
-            this.chkImportAsGraphics.Name = "chkImportAsGraphics";
-            this.chkImportAsGraphics.UseVisualStyleBackColor = true;
             // 
             // tableLayoutGraphicWidth
             // 
@@ -116,6 +114,35 @@ namespace RemarkableSync.OnenoteAddin
             resources.ApplyResources(this.lblGraphicWidthUnit, "lblGraphicWidthUnit");
             this.lblGraphicWidthUnit.Name = "lblGraphicWidthUnit";
             // 
+            // groupBoxImportOptions
+            // 
+            this.groupBoxImportOptions.Controls.Add(this.radioBtnImportBoth);
+            this.groupBoxImportOptions.Controls.Add(this.radioBtnImportGraphics);
+            this.groupBoxImportOptions.Controls.Add(this.radioBtnImportText);
+            resources.ApplyResources(this.groupBoxImportOptions, "groupBoxImportOptions");
+            this.groupBoxImportOptions.Name = "groupBoxImportOptions";
+            this.groupBoxImportOptions.TabStop = false;
+            // 
+            // radioBtnImportText
+            // 
+            resources.ApplyResources(this.radioBtnImportText, "radioBtnImportText");
+            this.radioBtnImportText.Checked = true;
+            this.radioBtnImportText.Name = "radioBtnImportText";
+            this.radioBtnImportText.TabStop = true;
+            this.radioBtnImportText.UseVisualStyleBackColor = true;
+            // 
+            // radioBtnImportGraphics
+            // 
+            resources.ApplyResources(this.radioBtnImportGraphics, "radioBtnImportGraphics");
+            this.radioBtnImportGraphics.Name = "radioBtnImportGraphics";
+            this.radioBtnImportGraphics.UseVisualStyleBackColor = true;
+            // 
+            // radioBtnImportBoth
+            // 
+            resources.ApplyResources(this.radioBtnImportBoth, "radioBtnImportBoth");
+            this.radioBtnImportBoth.Name = "radioBtnImportBoth";
+            this.radioBtnImportBoth.UseVisualStyleBackColor = true;
+            // 
             // RmDownloadForm
             // 
             resources.ApplyResources(this, "$this");
@@ -128,6 +155,8 @@ namespace RemarkableSync.OnenoteAddin
             this.tableLayoutGraphicWidth.ResumeLayout(false);
             this.tableLayoutGraphicWidth.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericGraphicWidth)).EndInit();
+            this.groupBoxImportOptions.ResumeLayout(false);
+            this.groupBoxImportOptions.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -139,10 +168,13 @@ namespace RemarkableSync.OnenoteAddin
         private System.Windows.Forms.Label lblInfo;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.TreeView rmTreeView;
-        private System.Windows.Forms.CheckBox chkImportAsGraphics;
         private System.Windows.Forms.TableLayoutPanel tableLayoutGraphicWidth;
         private System.Windows.Forms.Label lblGraphicWidth;
         private System.Windows.Forms.NumericUpDown numericGraphicWidth;
         private System.Windows.Forms.Label lblGraphicWidthUnit;
+        private System.Windows.Forms.GroupBox groupBoxImportOptions;
+        private System.Windows.Forms.RadioButton radioBtnImportBoth;
+        private System.Windows.Forms.RadioButton radioBtnImportGraphics;
+        private System.Windows.Forms.RadioButton radioBtnImportText;
     }
 }

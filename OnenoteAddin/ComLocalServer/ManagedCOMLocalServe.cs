@@ -6,6 +6,9 @@ using Microsoft.Win32;
 using System.Text;
 using System.Threading;
 using System.Reflection;
+using System.IO;
+using System.Collections;
+using System.Configuration;
 
 namespace RemarkableSync.OnenoteAddin
 {

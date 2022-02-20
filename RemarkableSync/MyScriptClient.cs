@@ -8,35 +8,17 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
 using RemarkableSync.RmLine;
-
+using System.Configuration;
+using System.Collections;
 
 namespace RemarkableSync
 {
-    public class MyScriptClient
+    public partial class MyScriptClient
     {
         static readonly string Url = "https://cloud.myscript.com/api/v4.0/iink/batch";
         static readonly string JiixContentType = "application/vnd.myscript.jiix,application/json";
 
         private HttpClient _client;
-
-        class HwrRequest
-        {
-            public int xDPI { get; set; }
-            public int yDPI { get; set; }
-            public string contentType { get; set; }
-            public StrokeGroup[] strokeGroups { get; set; }
-        }
-
-        class StrokeGroup
-        {
-            public Stroke[] strokes { get; set; }
-        }
-
-        class Stroke
-        {
-            public int[] x { get; set; }
-            public int[] y { get; set; }
-        }
 
         private static string AppKeyName = "appkey";
         private static string HmacKeyName = "hmackey";
@@ -45,9 +27,11 @@ namespace RemarkableSync
         private string _appKey;
         private string _hmacKey;
         private IConfigStore _configStore;
+        private bool _saveHwrData;
 
         public MyScriptClient(IConfigStore configStore)
         {
+            _saveHwrData = true;
             _appKey = "";
             _hmacKey = "";
             _configStore = configStore;
@@ -55,22 +39,26 @@ namespace RemarkableSync
             LoadConfig();
         }
 
-        public async Task<MyScriptResult> RequestHwr(List<RmPage> pages)
+        public async Task<Tuple<int, string>> RequestHwr(RmPage page, int pageIndex)
         {
-            Logger.LogMessage($"requesting hand writing recognition for {pages.Count} pages");
+            Tuple<int, string> resultTuple = Tuple.Create<int, string>(pageIndex, null);
 
             if (_appKey == "" || _hmacKey == "")
             {
                 Logger.LogMessage("Unable to send request due to appkey or hmac kay being empty");
-                return null;
+                return resultTuple;
             }
 
             string responseContentString = "";
+            HwrRequestBundle requestBundle = CreateHwrRequestBundle(page);
 
             try
             {
-                HwrRequest request = CreateHwrRequest(pages);
-                string reqString = JsonSerializer.Serialize(request);
+                string reqString = JsonSerializer.Serialize(requestBundle.Request);
+                if (_saveHwrData)
+                {
+                    File.WriteAllText(Path.Combine(Path.GetTempPath(), "HwrRequest.json"), reqString);
+                }
                 byte[] requestContent = Encoding.Unicode.GetBytes(reqString);
 
                 HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, Url);
@@ -94,7 +82,7 @@ namespace RemarkableSync
                 if (!response.IsSuccessStatusCode)
                 {
                     Logger.LogMessage($"Request was not successful. Return status: {response.StatusCode}, {response.ReasonPhrase}");
-                    return null;
+                    return resultTuple;
                 }
 
                 responseContentString = await response.Content.ReadAsStringAsync();
@@ -102,18 +90,22 @@ namespace RemarkableSync
             catch(Exception err)
             {
                 Logger.LogMessage($"HWR request exception: {err.Message}.\n {err.StackTrace}");
-                return null;
+                return resultTuple;
             }
 
             try
             {
+                if (_saveHwrData)
+                {
+                    File.WriteAllText(Path.Combine(Path.GetTempPath(), "HwrResponse.json"), responseContentString);
+                }
                 MyScriptResult result = JsonSerializer.Deserialize<MyScriptResult>(responseContentString);
-                return result;
+                return Tuple.Create(pageIndex, result.label);
             }
             catch (Exception err)
             {
                 Logger.LogMessage($"MyScriptResult json deseralizing failed with: {err.Message}.\n Content:\n{responseContentString}");
-                return null;
+                return resultTuple;
             }
         }
 
@@ -124,26 +116,32 @@ namespace RemarkableSync
             WriteConfig(); 
         }
 
-        private HwrRequest CreateHwrRequest(List<RmPage> pages)
+        private HwrRequestBundle CreateHwrRequestBundle(RmPage pages)
         {
             HwrRequest request = new HwrRequest();
+
             request.xDPI = request.yDPI = 226;
             request.contentType = "Text";
-            request.strokeGroups = new StrokeGroup[pages.Count];
-            for (int i = 0; i < pages.Count; ++i)
+            request.strokeGroups = new StrokeGroup[1];
+
+            var strokeGroupBundle = PageToStrokeGroupBundle(pages);
+            request.strokeGroups[0] = strokeGroupBundle.Item1;
+
+            return new HwrRequestBundle()
             {
-                request.strokeGroups[i] = PageToStrokeGroup(pages[i], i);
-            }
-            return request;
+                Request = request,
+                Bounds = new List<BoundingBox>() { strokeGroupBundle.Item2 }
+            };
         }
 
-        private StrokeGroup PageToStrokeGroup(RmPage page, int pageNum)
+        private Tuple<StrokeGroup, BoundingBox> PageToStrokeGroupBundle(RmPage page)
         {
-            int yOffset = pageNum * RmConstants.X_MAX;
+            int yOffset = 0;
 
             List<Stroke> strokes = new List<Stroke>();
+            BoundingBox bound = new BoundingBox();
 
-            foreach(RmLayer rmLayer in page.Objects)
+            foreach (RmLayer rmLayer in page.Objects)
             {
                 foreach (RmStroke rmStroke in rmLayer.Objects)
                 {
@@ -154,22 +152,33 @@ namespace RemarkableSync
 
                     Stroke stroke = new Stroke();
                     int count = rmStroke.Objects.Count;
-                    stroke.x = new int[count];
-                    stroke.y = new int[count];
+                    List<int> xList = new List<int>(count);
+                    List<int> yList = new List<int>(count);
                     int i = 0;
                     foreach (RmSegment rmSegment in rmStroke.Objects)
                     {
-                        stroke.x[i] = (int) Math.Round(rmSegment.X);
-                        stroke.y[i] = (int) Math.Round(rmSegment.Y) + yOffset;
+                        int x = (int)Math.Round(rmSegment.X);
+                        int y = (int)Math.Round(rmSegment.Y) + yOffset;
+                        if ((i > 0) && (x == xList[i - 1]) && (y == yList[i - 1]))
+                        {
+                            continue;
+                        }
+                        xList.Add(x);
+                        yList.Add(y);
+                        bound.Expand(x, y);
                         i++;
                     }
+                    xList.TrimExcess();
+                    yList.TrimExcess();
+                    stroke.x = xList.ToArray();
+                    stroke.y = yList.ToArray();
                     strokes.Add(stroke);
                 }
             }
 
             StrokeGroup strokeGroup = new StrokeGroup();
             strokeGroup.strokes = strokes.ToArray();
-            return strokeGroup;
+            return Tuple.Create(strokeGroup, bound);
         }
 
         private void LoadConfig()
@@ -186,6 +195,52 @@ namespace RemarkableSync
             mapConfigs[AppKeyName] = _appKey?.Length > 0 ? _appKey : EmptyKey;
             mapConfigs[HmacKeyName] = _hmacKey?.Length > 0 ? _hmacKey : EmptyKey;
             _configStore.SetConfigs(mapConfigs);
+        }
+
+        private List<string> ParseResult(HwrRequestBundle requestBundle, MyScriptResult result)
+        {
+            List<string> resultList = new List<string>();
+            var groupBounds = requestBundle.Bounds;
+            Queue<Word> wordQueue = new Queue<Word>(result.words);
+            foreach( var bound in groupBounds)
+            {
+                StringBuilder sb = new StringBuilder();
+                while (true)
+                {
+                    if (wordQueue.Count == 0)
+                    {
+                        break;
+                    }
+
+                    var currWord = wordQueue.Peek();
+
+                    // always append whitespace to current group
+                    if (currWord.boundingbox is null)
+                    {
+                        sb.Append(wordQueue.Dequeue().label);
+                        continue;
+                    }
+
+                    if (bound.Contains(currWord.boundingbox))
+                    {
+                        sb.Append(wordQueue.Dequeue().label);
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                resultList.Add(sb.ToString());
+            }
+
+            for (int i = 0; i < resultList.Count; ++i)
+            {
+                Logger.LogMessage($"MyScriptClient::ParseResult() - result item {i}: {resultList[i]}");
+            }
+
+            return resultList;
         }
     }
 }
