@@ -93,7 +93,7 @@ namespace RemarkableSync
 
         protected string GetPageMetadataFilePath(int pageNumber)
         {
-            return Path.Combine(_folderPath, _id, $"{pageNumber}-metadta.json");
+            return Path.Combine(_folderPath, _id, $"{pageNumber}-metadata.json");
         }
 
         protected string GetPageContentFolderPath()
