@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using Extensibility;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.OneNote;
+using Microsoft.Win32;
 using Application = Microsoft.Office.Interop.OneNote.Application;  // Conflicts with System.Windows.Forms
 
 namespace RemarkableSync.OnenoteAddin
@@ -30,12 +31,15 @@ namespace RemarkableSync.OnenoteAddin
 		{ get; set; }
 
 		private const string _settingsRegPath = @"Software\Microsoft\Office\OneNote\AddInsData\RemarkableSync.OnenoteAddin";
+		private const string _useLoggingRegKey = @"LogFile";
 
 		private RmDownloadForm _downloadForm;
 		private SettingsForm _settingForm;
 		private Thread _downloadFormThread;
 		private Thread _settingFormThread;
 		private ReferenceCountedObjectBase _refCountObj;
+		private FileStream _filestream;
+		private StreamWriter _streamwriter;
 
 		internal class CWin32WindowWrapper : IWin32Window
 		{
@@ -72,7 +76,7 @@ namespace RemarkableSync.OnenoteAddin
 		/// <returns></returns>
 		public string GetCustomUI(string RibbonID)
 		{
-			Console.WriteLine("AddIn.GetCustomUI(). called");
+			Logger.LogMessage("called");
 			return Properties.Resources.ribbon;
 		}
 
@@ -99,6 +103,9 @@ namespace RemarkableSync.OnenoteAddin
 				_settingForm?.Close();
 				_settingForm = null;
 			}));
+
+			_streamwriter?.Close();
+			_filestream?.Close();
 		}
 
 		/// <summary>
@@ -111,6 +118,7 @@ namespace RemarkableSync.OnenoteAddin
 		/// <param name="custom"></param>
 		public void OnConnection(object Application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom)
 		{
+			CheckConsoleRedirect();
 			SetOneNoteApplication((Application)Application);
 		}
 
@@ -221,14 +229,40 @@ namespace RemarkableSync.OnenoteAddin
             }
 			return new CCOMStreamWrapper(imageStream);
 		}
+
+		private void CheckConsoleRedirect()
+		{
+			string regValue = null; ;
+			try
+			{
+				var settingsKey = Registry.CurrentUser.OpenSubKey(_settingsRegPath);
+				regValue = (string)settingsKey.GetValue(_useLoggingRegKey, null);
+			}
+			catch (Exception err)
+			{
+				Logger.LogMessage($"Unable to get \"{_settingsRegPath}\" regkey. Error: {err.Message}");
+				return;
+			}
+
+			if (regValue == null || regValue.Length == 0)
+			{
+				return;
+			}
+
+			_filestream = new FileStream(regValue, FileMode.Create);
+			_streamwriter = new StreamWriter(_filestream);
+			_streamwriter.AutoFlush = true;
+			Console.SetOut(_streamwriter);
+			Console.SetError(_streamwriter);
+		}
 	}
 
 	class AddInClassFactory : ClassFactoryBase
 	{
 		public override void virtual_CreateInstance(IntPtr pUnkOuter, ref Guid riid, out IntPtr ppvObject)
 		{
-			Console.WriteLine("AddInClassFactory.CreateInstance().");
-			Console.WriteLine("Requesting Interface : " + riid.ToString());
+			Logger.LogMessage("AddInClassFactory.CreateInstance().");
+			Logger.LogMessage("Requesting Interface : " + riid.ToString());
 
 			if (riid == Marshal.GenerateGuidForType(typeof(IDTExtensibility2)) ||
 				riid == ManagedCOMLocalServer.IID_IDispatch ||

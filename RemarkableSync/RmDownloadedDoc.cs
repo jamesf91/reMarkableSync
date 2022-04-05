@@ -34,13 +34,13 @@ namespace RemarkableSync
         {
             if (_folderPath == "")
             {
-                Console.WriteLine($"RmDownloadedDoc::GetPageContent() - Document content not available.");
+                Logger.LogMessage($"Document content not available.");
                 return null;
             }
 
             if (pageNumber >= _pageCount)
             {
-                Console.WriteLine($"RmDownloadedDoc::GetPageContent() - unexpected page number {pageNumber} for pageCount {_pageCount}");
+                Logger.LogMessage($"unexpected page number {pageNumber} for pageCount {_pageCount}");
                 return null;
             }
 
@@ -59,7 +59,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmDownloadedDoc::GetPageContent() - Parsing page content to Page object failed with err: {err.Message}");
+                Logger.LogMessage($"Parsing page content to Page object failed with err: {err.Message}");
             }
 
             return null;
@@ -75,7 +75,7 @@ namespace RemarkableSync
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine($"RmDownloadedDoc::Dispose() - failed to remove folder: {_folderPath}. Error: {err.Message}");
+                    Logger.LogMessage($"failed to remove folder: {_folderPath}. Error: {err.Message}");
                 }
 
             }
@@ -112,7 +112,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmDownloadedDoc::GetPageLayerNames() - RmPageMetadata json deseralizing failed with: {err.Message}.\n Content:\n{metadataJsonString}");
+                Logger.LogMessage($"RmPageMetadata json deseralizing failed with: {err.Message}.\n Content:\n{metadataJsonString}");
             }
             return layerNames;
         }

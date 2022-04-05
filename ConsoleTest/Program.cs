@@ -32,7 +32,7 @@ namespace RemarkableSync
             Bitmap image = RmLinesDrawer.DrawPage(page);
             image.Save(outImagePath, ImageFormat.Png);
 
-            Console.WriteLine("Done exporting image");
+            Logger.LogMessage("Done exporting image");
 
             Application oneNoteApp = new Application();
             string thisPage = oneNoteApp.Windows.CurrentWindow.CurrentPageId;
@@ -40,7 +40,7 @@ namespace RemarkableSync
             List<Bitmap> images = new List<Bitmap> { image };
             helper.AppendPageImages(thisPage, images, 0.5);
 
-            Console.WriteLine("Done inserting image");
+            Logger.LogMessage("Done inserting image");
             Console.ReadKey();
         }
     }

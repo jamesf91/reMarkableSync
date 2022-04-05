@@ -28,13 +28,13 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"WinRegistryConfigStore::GetConfig() - Failed to access registry for config \"{configName}\". Error: {err.Message}");
+                Logger.LogMessage($"Failed to access registry for config \"{configName}\". Error: {err.Message}");
                 return null;
             }
 
             if (regValue == null)
             {
-                Console.WriteLine($"WinRegistryConfigStore::GetConfig() - Getting value from registry for config \"{configName}\" failed");
+                Logger.LogMessage($"Getting value from registry for config \"{configName}\" failed");
                 return null;
             }
 
@@ -51,7 +51,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"WinRegistryConfigStore::GetConfig() - Failed to get config \"{configName}\". Error: {err.Message}");
+                Logger.LogMessage($"Failed to get config \"{configName}\". Error: {err.Message}");
                 return null;
             }           
         }
@@ -72,7 +72,7 @@ namespace RemarkableSync
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine($"WinRegistryConfigStore::SetConfigs() - Failed to encrypt all configs. Error: {err.Message}");
+                    Logger.LogMessage($"Failed to encrypt all configs. Error: {err.Message}");
                     return false;
                 }
             }
@@ -93,7 +93,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"WinRegistryConfigStore::SetConfigs() - Failed to write to registry. Error: {err.Message}");
+                Logger.LogMessage($"Failed to write to registry. Error: {err.Message}");
                 return false;
             }
 
@@ -113,7 +113,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine("WinRegistryConfigStore::EncryptData() - Encrupt failed with err: " + err.Message);
+                Logger.LogMessage("Encrypt failed with err: " + err.Message);
                 throw err;
             }
         }
@@ -126,7 +126,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine("WinRegistryConfigStore::DecryptData() - Encrupt failed with err: " + err.Message);
+                Logger.LogMessage("Encrypt failed with err: " + err.Message);
                 throw err;
             }
         }

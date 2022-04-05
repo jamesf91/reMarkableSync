@@ -16,7 +16,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmCloudDownloadedDoc::RmDownloadedDoc() - failed to extract archive. Error: {err.Message}");
+                Logger.LogMessage($"failed to extract archive. Error: {err.Message}");
                 _folderPath = "";
                 throw err;
             }
@@ -29,7 +29,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmCloudDownloadedDoc::RmDownloadedDoc() - failed to get page count. Error: {err.Message}");
+                Logger.LogMessage($"failed to get page count. Error: {err.Message}");
                 _pageCount = 0;
             }
         }

@@ -66,7 +66,7 @@ namespace RemarkableSync.RmLine
 
         public void Log()
         {
-            Console.WriteLine(ToString());
+            Logger.LogMessage(ToString());
             foreach(var child in _objects)
             {
                 child.Log();

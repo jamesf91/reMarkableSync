@@ -35,7 +35,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmDownloadedDoc::RmDownloadedDoc() - failed to download content to temp folder. Error: {err.Message}");
+                Logger.LogMessage($"failed to download content to temp folder. Error: {err.Message}");
                 throw err;
             }
         }

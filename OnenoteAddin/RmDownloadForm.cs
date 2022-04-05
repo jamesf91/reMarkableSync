@@ -75,7 +75,7 @@ namespace RemarkableSync.OnenoteAddin
                     }
                     catch (Exception err)
                     {
-                        Console.WriteLine($"RmDownloadForm::RmDownloadForm() - Failed to get RmConnectionMethod config with err: {err.Message}");
+                        Logger.LogMessage($"Failed to get RmConnectionMethod config with err: {err.Message}");
                         // will default to cloud
                     }
 
@@ -83,12 +83,12 @@ namespace RemarkableSync.OnenoteAddin
                     {
                         case (int)SettingsForm.RmConnectionMethod.Ssh:
                             _rmDataSource = new RmSftpDataSource(_configStore);
-                            Console.WriteLine("Using SFTP data source");
+                            Logger.LogMessage("Using SFTP data source");
                             break;
                         case (int)SettingsForm.RmConnectionMethod.RmCloud:
                         default:
                             _rmDataSource = new RmCloudDataSource(_configStore, new WinRegistryConfigStore(_settingsRegPath, false));
-                            Console.WriteLine("Using rm cloud data source");
+                            Logger.LogMessage("Using rm cloud data source");
                             break;
                     }
                 });
@@ -96,17 +96,17 @@ namespace RemarkableSync.OnenoteAddin
             }
             catch (Exception err)
             {
-                Console.WriteLine($"Error getting notebook structure from reMarkable. Err: {err.Message}");
+                Logger.LogMessage($"Error getting notebook structure from reMarkable. Err: {err.Message}");
                 MessageBox.Show($"Error getting notebook structure from reMarkable.\n{err.Message}", "Error");
                 Close();
                 return;
             }
 
-            Console.WriteLine("Got item hierarchy from remarkable cloud");
+            Logger.LogMessage("Got item hierarchy from remarkable cloud");
             var treeNodeList = RmTreeNode.FromRmItem(rootItems);
 
             rmTreeView.Nodes.AddRange(treeNodeList.ToArray());
-            Console.WriteLine("Added nodes to tree view");
+            Logger.LogMessage("Added nodes to tree view");
             lblInfo.Text = "Select document to load into OneNote.";
             return;
         }
@@ -127,16 +127,16 @@ namespace RemarkableSync.OnenoteAddin
             RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
             bool importAsGraphics = chkImportAsGraphics.Checked;
             double zoom = (double)numericGraphicWidth.Value / 100.0;
-            Console.WriteLine($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
+            Logger.LogMessage($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
 
             try
             {
                 bool success = await ImportDocument(rmTreeNode, importAsGraphics, zoom);
-                Console.WriteLine("Import " + (success ? "successful" : "failed"));
+                Logger.LogMessage("Import " + (success ? "successful" : "failed"));
             }
             catch (Exception err)
             {
-                Console.WriteLine($"Error importing document from reMarkable. Err: {err.Message}");
+                Logger.LogMessage($"Error importing document from reMarkable. Err: {err.Message}");
                 MessageBox.Show($"Error importing document from reMarkable.\n{err.Message}", "Error");
                 Close();
                 return;
@@ -163,7 +163,7 @@ namespace RemarkableSync.OnenoteAddin
 
             using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item))
             {
-                Console.WriteLine("ImportDocument() - document downloaded");
+                Logger.LogMessage("document downloaded");
                 for (int i = 0; i < doc.PageCount; ++i)
                 {
                     pages.Add(doc.GetPageContent(i));
@@ -179,7 +179,7 @@ namespace RemarkableSync.OnenoteAddin
         {
             lblInfo.Text = $"Digitising {visibleName}...";
             MyScriptClient hwrClient = new MyScriptClient(_configStore);
-            Console.WriteLine("ImportDocument() - requesting hand writing recognition");
+            Logger.LogMessage("requesting hand writing recognition");
             MyScriptResult result = await hwrClient.RequestHwr(pages);
 
             if (result != null)

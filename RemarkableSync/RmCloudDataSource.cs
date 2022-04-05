@@ -63,7 +63,7 @@ namespace RemarkableSync
 
             try
             {
-                Console.WriteLine($"RmCloudDataSource::RegisterWithOneTimeCode() - registring with code: {oneTimeCode}");
+                Logger.LogMessage($"registring with code: {oneTimeCode}");
                 HttpResponseMessage response = await Request(
                     HttpMethod.Post,
                     _deviceTokenUrl,
@@ -79,12 +79,12 @@ namespace RemarkableSync
                 }
                 else
                 {
-                    Console.WriteLine($"RmCloudDataSource::RegisterWithOneTimeCode() - response code: {response.StatusCode}");
+                    Logger.LogMessage($"response code: {response.StatusCode}");
                 }
             }
             catch (Exception err)
             {
-                Console.WriteLine("RmCloudDataSource::RegisterWithOneTimeCode() - Error: " + err.Message);
+                Logger.LogMessage("Error: " + err.Message);
             }
             return false;
         }
@@ -108,13 +108,15 @@ namespace RemarkableSync
                 null,
                 null);
 
+            string responseContent = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
             {
                 string errMsg = "GetAllItems request failed with status code " + response.StatusCode.ToString();
+                Logger.LogMessage($"Request failed with status code: {response.StatusCode.ToString()} and content: {responseContent}");
                 throw new Exception(errMsg);
             }
 
-            string responseContent = await response.Content.ReadAsStringAsync();
             List<RmItem> collection = JsonSerializer.Deserialize<List<RmItem>>(responseContent);
             return collection;
         }
@@ -128,7 +130,7 @@ namespace RemarkableSync
 
             if (item.Type != RmItem.DocumentType)
             {
-                Console.WriteLine($"RmCloudDataSource::DownloadDocument() - item with id {item.ID} is not document type");
+                Logger.LogMessage($"item with id {item.ID} is not document type");
                 return null;
 
             }
@@ -140,13 +142,13 @@ namespace RemarkableSync
                 HttpResponseMessage response = await Request(HttpMethod.Get, url, null, null);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("RmCloudDataSource::DownloadDocument() -  request failed with status code " + response.StatusCode.ToString());
+                    Logger.LogMessage("request failed with status code " + response.StatusCode.ToString());
                     return null;
                 }
                 List<RmItem> items = JsonSerializer.Deserialize<List<RmItem>>(response.Content.ReadAsStringAsync().Result);
                 if (items.Count == 0)
                 {
-                    Console.WriteLine("RmCloudDataSource::DownloadDocument() - Failed to find document with id: " + item.ID);
+                    Logger.LogMessage("Failed to find document with id: " + item.ID);
                     return null;
                 }
                 string blobUrl = items[0].BlobURLGet;
@@ -157,7 +159,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmCloud::DownloadDocument() - failed for id {item.ID}. Error: {err.Message}");
+                Logger.LogMessage($"failed for id {item.ID}. Error: {err.Message}");
                 return null;
             }
 
@@ -174,7 +176,7 @@ namespace RemarkableSync
             LoadConfig();
             if (_devicetoken != null)
             {
-                Console.WriteLine("device token loaded from config file");
+                Logger.LogMessage("device token loaded from config file");
                 _initialized = await RenewToken();
             }
             return _initialized;
@@ -207,7 +209,7 @@ namespace RemarkableSync
                 url = _baseUrl + url;
             }
 
-            Console.WriteLine($"Request() -  url is: {url}");
+            Logger.LogMessage($"url is: {url}");
             var request = new HttpRequestMessage();
             request.RequestUri = new Uri(url);
             request.Method = method;
@@ -245,7 +247,7 @@ namespace RemarkableSync
                 byte[] responseContent = response.Content.ReadAsByteArrayAsync().Result;
                 _usertoken = Encoding.ASCII.GetString(responseContent);
                 WriteConfig();
-                Console.WriteLine("user token renewed");
+                Logger.LogMessage("user token renewed");
                 return true;
             }
             else

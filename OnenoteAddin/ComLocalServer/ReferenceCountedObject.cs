@@ -11,14 +11,14 @@ namespace RemarkableSync.OnenoteAddin
 	{
 		public ReferenceCountedObjectBase()
 		{
-			Console.WriteLine("ReferenceCountedObjectBase constructor.");
+			Logger.LogMessage("constructor called");
 			// We increment the global count of objects.
 			ManagedCOMLocalServer.InterlockedIncrementObjectsCount();
 		}
 
 		~ReferenceCountedObjectBase()
 		{
-			Console.WriteLine("ReferenceCountedObjectBase destructor.");
+			Logger.LogMessage("destructor called");
 			// We decrement the global count of objects.
 			ManagedCOMLocalServer.InterlockedDecrementObjectsCount();
 			// We then immediately test to see if we the conditions
