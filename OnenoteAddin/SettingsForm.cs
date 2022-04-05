@@ -159,7 +159,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private void setRmConnectionMethod(RmConnectionMethod connectionMethod)
         {
-            Console.WriteLine($"SettingsForm::setRmConnectionMethod() - Setting connection method to {connectionMethod.ToString()}");
+            Logger.LogMessage($"Setting connection method to {connectionMethod.ToString()}");
             Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
             mapConfigs[RmConnectionMethodConfig] = connectionMethod.ToString("d");
             _configStore.SetConfigs(mapConfigs);
@@ -175,7 +175,7 @@ namespace RemarkableSync.OnenoteAddin
             }
             catch (Exception err)
             {
-                Console.WriteLine($"SettingsForm::getConnectionMethodFromConfig() - Failed to get RmConnectionMethod config with err: {err.Message}");
+                Logger.LogMessage($"Failed to get RmConnectionMethod config with err: {err.Message}");
                 // will default to cloud
             }
 

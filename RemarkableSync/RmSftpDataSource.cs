@@ -28,7 +28,7 @@ namespace RemarkableSync
             if (password == null)
             {
                 string errMsg = "Unable to get SSH password from config store";
-                Console.WriteLine($"RmSftpDataSource::RmSftpDataSource() - {errMsg}");
+                Logger.LogMessage($"{errMsg}");
                 throw new Exception(errMsg);
             }
 
@@ -42,12 +42,12 @@ namespace RemarkableSync
             }
             catch (SshAuthenticationException err)
             {
-                Console.WriteLine($"RmSftpDataSource::RmSftpDataSource() - authentication error on SFTP connection: err: {err.Message}");
+                Logger.LogMessage($"authentication error on SFTP connection: err: {err.Message}");
                 throw new Exception("reMarkable device SSH login failed");
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RmSftpDataSource::RmSftpDataSource() - error on SFTP connection: err: {err.Message}");
+                Logger.LogMessage($"error on SFTP connection: err: {err.Message}");
                 throw new Exception("Failed to connect to reMarkable device via SSH");
             }
         }
@@ -68,7 +68,7 @@ namespace RemarkableSync
                 _client.DownloadFile(contentFileFullPath, stream);
                 NotebookContent notebookContent = NotebookContent.FromStream(stream);
                 List<string> pageIDs = notebookContent.pages.ToList();
-                Console.WriteLine($"RmSftpDataSource::DownloadDocument() - Notebook \"{item.VissibleName}\" has {pageIDs.Count} pages");
+                Logger.LogMessage($"Notebook \"{item.VissibleName}\" has {pageIDs.Count} pages");
 
                 RmSftpDownloadedDoc downloadedDoc = new RmSftpDownloadedDoc(ContentFolderPath, item.ID, pageIDs, _client);
                 return downloadedDoc;

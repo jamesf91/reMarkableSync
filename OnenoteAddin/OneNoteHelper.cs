@@ -54,7 +54,7 @@ namespace RemarkableSync.OnenoteAddin
             }
             else
             {
-                Console.WriteLine("OneNoteHelper::GetCurrentNotebookId() - No notebook found as current");
+                Logger.LogMessage("No notebook found as current");
                 return null;
             }
         }
@@ -81,7 +81,7 @@ namespace RemarkableSync.OnenoteAddin
             }
             else
             {
-                Console.WriteLine("OneNoteHelper::GetCurrentSectionId() - No section found as current");
+                Logger.LogMessage("No section found as current");
                 return null;
             }
         }
@@ -217,7 +217,7 @@ namespace RemarkableSync.OnenoteAddin
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine($"OneNoteHelper.GetBottomContentYPos() - error: {err.Message}");
+                    Logger.LogMessage($"error: {err.Message}");
                     continue;
                 }
             }

@@ -57,11 +57,11 @@ namespace RemarkableSync
 
         public async Task<MyScriptResult> RequestHwr(List<RmPage> pages)
         {
-            Console.WriteLine($"MyScriptClient::RequestHwr() -  requesting hand writing recognition for {pages.Count} pages");
+            Logger.LogMessage($"requesting hand writing recognition for {pages.Count} pages");
 
             if (_appKey == "" || _hmacKey == "")
             {
-                Console.WriteLine("MyScriptClient::RequestHwr() -  Unable to send request due to appkey or hmac kay being empty");
+                Logger.LogMessage("Unable to send request due to appkey or hmac kay being empty");
                 return null;
             }
 
@@ -93,7 +93,7 @@ namespace RemarkableSync
                 HttpResponseMessage response = await _client.SendAsync(requestMessage);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"MyScriptClient::RequestHwr() - Request was not successful. Return status: {response.StatusCode}, {response.ReasonPhrase}");
+                    Logger.LogMessage($"Request was not successful. Return status: {response.StatusCode}, {response.ReasonPhrase}");
                     return null;
                 }
 
@@ -101,7 +101,7 @@ namespace RemarkableSync
             }
             catch(Exception err)
             {
-                Console.WriteLine($"MyScriptClient::RequestHwr() - HWR request exception: {err.Message}.\n {err.StackTrace}");
+                Logger.LogMessage($"HWR request exception: {err.Message}.\n {err.StackTrace}");
                 return null;
             }
 
@@ -112,7 +112,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Console.WriteLine($"MyScriptClient::RequestHwr() - MyScriptResult json deseralizing failed with: {err.Message}.\n Content:\n{responseContentString}");
+                Logger.LogMessage($"MyScriptResult json deseralizing failed with: {err.Message}.\n Content:\n{responseContentString}");
                 return null;
             }
         }

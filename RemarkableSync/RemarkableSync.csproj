@@ -104,6 +104,7 @@
   <ItemGroup>
     <Compile Include="Interfaces\IConfigStore.cs" />
     <Compile Include="Interfaces\IRmDataSource.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MyScriptClient.cs" />
     <Compile Include="MyScriptResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
