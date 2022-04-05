@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\DownloadDoc.png" />
+    <None Include="app.config" />
     <None Include="Resources\loading_spinner.gif" />
     <None Include="RegisterAddIn.reg" />
     <None Include="Resources\Settings.png" />
