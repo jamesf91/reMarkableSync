@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,6 +12,14 @@ namespace RemarkableSync.OnenoteAddin
 {
     public partial class RmDownloadForm : Form
     {
+        enum ImportMode
+        {
+            Text = 0,
+            Graphics,
+            Both,
+            Unknown
+        }
+
         class RmTreeNode : TreeNode
         {
             public RmTreeNode(string id, string visibleName, bool isCollection)
@@ -125,13 +134,26 @@ namespace RemarkableSync.OnenoteAddin
             }
 
             RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
-            bool importAsGraphics = chkImportAsGraphics.Checked;
             double zoom = (double)numericGraphicWidth.Value / 100.0;
             Logger.LogMessage($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
 
+            ImportMode mode = ImportMode.Unknown;
+            if (radioBtnImportText.Checked)
+            {
+                mode = ImportMode.Text;
+            }
+            else if (radioBtnImportGraphics.Checked)
+            {
+                mode = ImportMode.Graphics;
+            }
+            else if (radioBtnImportBoth.Checked)
+            {
+                mode = ImportMode.Both;
+            }
+
             try
             {
-                bool success = await ImportDocument(rmTreeNode, importAsGraphics, zoom);
+                bool success = await ImportDocument(rmTreeNode, mode, zoom);
                 Logger.LogMessage("Import " + (success ? "successful" : "failed"));
             }
             catch (Exception err)
@@ -144,7 +166,7 @@ namespace RemarkableSync.OnenoteAddin
         }
 
 
-        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, bool importAsGraphics, double zoom = 0.5)
+        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, ImportMode mode, double zoom = 0.5)
         {
             if (rmTreeNode.IsCollection)
             {
@@ -170,21 +192,29 @@ namespace RemarkableSync.OnenoteAddin
                 }
             }
 
-            return importAsGraphics ?
-                ImportContentAsGraphics(pages, rmTreeNode.VisibleName, zoom) : 
-                await ImportContentAsText(pages, rmTreeNode.VisibleName);
+            switch (mode)
+            {
+                case ImportMode.Text:
+                    return await ImportContentAsText(pages, rmTreeNode.VisibleName);
+                case ImportMode.Graphics:
+                    return ImportContentAsGraphics(pages, rmTreeNode.VisibleName, zoom);
+                case ImportMode.Both:
+                    return await ImportContentAsBoth(pages, rmTreeNode.VisibleName, zoom);
+                default:
+                    Logger.LogMessage($"ImportDocument() - unknown import mode: {mode}");
+                    break;
+            }
+            return true;
         }
 
         private async Task<bool> ImportContentAsText(List<RmPage> pages, string visibleName)
         {
             lblInfo.Text = $"Digitising {visibleName}...";
-            MyScriptClient hwrClient = new MyScriptClient(_configStore);
-            Logger.LogMessage("requesting hand writing recognition");
-            MyScriptResult result = await hwrClient.RequestHwr(pages);
 
-            if (result != null)
+            List<string> results = await GetHwrResultAsync(pages);
+            if (results != null)
             {
-                UpdateOneNoteWithHwrResult(visibleName, result);
+                UpdateOneNoteWithHwrResult(visibleName, results);
                 lblInfo.Text = $"Imported {visibleName} successfully.";
                 Task.Run(() =>
                 {
@@ -199,12 +229,24 @@ namespace RemarkableSync.OnenoteAddin
             return true;
         }
 
-        private void UpdateOneNoteWithHwrResult(string name, MyScriptResult result)
+        private async Task<List<string>> GetHwrResultAsync(List<RmPage> pages)
+        {
+            Logger.LogMessage($"GetHwrResultAsync() - requesting hand writing recognition for {pages.Count} pages");
+            MyScriptClient hwrClient = new MyScriptClient(_configStore);
+            var hwrResults = (await Task.WhenAll(pages.Select((page, index) => hwrClient.RequestHwr(page, index)))).ToList();
+            hwrResults.Sort((result1, result2) => result1.Item1.CompareTo(result2.Item1));
+            return hwrResults.Select(result => result.Item2).ToList();
+        }
+
+        private void UpdateOneNoteWithHwrResult(string name, List<string> result)
         {
             OneNoteHelper oneNoteHelper = new OneNoteHelper(_application);
             string currentSectionId = oneNoteHelper.GetCurrentSectionId();
             string newPageId = oneNoteHelper.CreatePage(currentSectionId, name);
-            oneNoteHelper.AddPageContent(newPageId, result.label);
+            foreach (string content in result)
+            {
+                oneNoteHelper.AddPageContent(newPageId, content);
+            }
         }
 
         private bool ImportContentAsGraphics(List<RmPage> pages, string visibleName, double zoom)
@@ -223,6 +265,48 @@ namespace RemarkableSync.OnenoteAddin
             }).Wait();
             Close();
             return true;
+        }
+
+        private async Task<bool> ImportContentAsBoth(List<RmPage> pages, string visibleName, double zoom)
+        {
+            lblInfo.Text = $"Importing {visibleName} as both text and graphics...";
+
+            List<string> textResults = await GetHwrResultAsync(pages);
+            List<Bitmap> graphicsResults = RmLinesDrawer.DrawPages(pages);
+            if (textResults.Count != graphicsResults.Count)
+            {
+                Logger.LogMessage($"ImportContentAsBoth() - got {textResults.Count} text results and {graphicsResults.Count} graphics results");
+                lblInfo.Text = $"Imported {visibleName} as both text and graphics encountered error.";
+                return true;
+            }
+
+            List<Tuple<string, Bitmap>> result = new List<Tuple<string, Bitmap>>(textResults.Count);
+            for(int i = 0; i < textResults.Count; ++i)
+            {
+                result.Add(Tuple.Create(textResults[i], graphicsResults[i]));
+            }
+
+            UpdateOneNoteWithHwrResultAndGraphics(visibleName, result, zoom);
+
+            lblInfo.Text = $"Imported {visibleName} as both text and graphics successful.";
+            Task.Run(() =>
+            {
+                Thread.Sleep(500);
+            }).Wait();
+            Close();
+            return true;
+        }
+
+        private void UpdateOneNoteWithHwrResultAndGraphics(string name, List<Tuple<string, Bitmap>> result, double zoom)
+        {
+            OneNoteHelper oneNoteHelper = new OneNoteHelper(_application);
+            string currentSectionId = oneNoteHelper.GetCurrentSectionId();
+            string newPageId = oneNoteHelper.CreatePage(currentSectionId, name);
+            foreach (var pageResult in result)
+            {
+                oneNoteHelper.AddPageContent(newPageId, pageResult.Item1);
+                oneNoteHelper.AppendPageImage(newPageId, pageResult.Item2, zoom);
+            }
         }
 
         private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)
