@@ -21,6 +21,7 @@ namespace RemarkableSync
             public int xDPI { get; set; }
             public int yDPI { get; set; }
             public string contentType { get; set; }
+            public Configuration configuration { get; set; }
             public StrokeGroup[] strokeGroups { get; set; }
         }
 
@@ -33,6 +34,11 @@ namespace RemarkableSync
         {
             public int[] x { get; set; }
             public int[] y { get; set; }
+        }
+
+        class Configuration
+        {
+            public string lang { get; set; }
         }
     }
 }
