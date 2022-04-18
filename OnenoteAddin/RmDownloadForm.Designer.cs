@@ -40,9 +40,11 @@ namespace RemarkableSync.OnenoteAddin
             this.numericGraphicWidth = new System.Windows.Forms.NumericUpDown();
             this.lblGraphicWidthUnit = new System.Windows.Forms.Label();
             this.groupBoxImportOptions = new System.Windows.Forms.GroupBox();
-            this.radioBtnImportText = new System.Windows.Forms.RadioButton();
-            this.radioBtnImportGraphics = new System.Windows.Forms.RadioButton();
             this.radioBtnImportBoth = new System.Windows.Forms.RadioButton();
+            this.radioBtnImportGraphics = new System.Windows.Forms.RadioButton();
+            this.radioBtnImportText = new System.Windows.Forms.RadioButton();
+            this.labelLanguage = new System.Windows.Forms.Label();
+            this.cboLanguage = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel.SuspendLayout();
             this.tableLayoutGraphicWidth.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericGraphicWidth)).BeginInit();
@@ -92,6 +94,8 @@ namespace RemarkableSync.OnenoteAddin
             this.tableLayoutGraphicWidth.Controls.Add(this.lblGraphicWidth, 0, 0);
             this.tableLayoutGraphicWidth.Controls.Add(this.numericGraphicWidth, 1, 0);
             this.tableLayoutGraphicWidth.Controls.Add(this.lblGraphicWidthUnit, 2, 0);
+            this.tableLayoutGraphicWidth.Controls.Add(this.labelLanguage, 0, 1);
+            this.tableLayoutGraphicWidth.Controls.Add(this.cboLanguage, 1, 1);
             this.tableLayoutGraphicWidth.Name = "tableLayoutGraphicWidth";
             // 
             // lblGraphicWidth
@@ -123,6 +127,18 @@ namespace RemarkableSync.OnenoteAddin
             this.groupBoxImportOptions.Name = "groupBoxImportOptions";
             this.groupBoxImportOptions.TabStop = false;
             // 
+            // radioBtnImportBoth
+            // 
+            resources.ApplyResources(this.radioBtnImportBoth, "radioBtnImportBoth");
+            this.radioBtnImportBoth.Name = "radioBtnImportBoth";
+            this.radioBtnImportBoth.UseVisualStyleBackColor = true;
+            // 
+            // radioBtnImportGraphics
+            // 
+            resources.ApplyResources(this.radioBtnImportGraphics, "radioBtnImportGraphics");
+            this.radioBtnImportGraphics.Name = "radioBtnImportGraphics";
+            this.radioBtnImportGraphics.UseVisualStyleBackColor = true;
+            // 
             // radioBtnImportText
             // 
             resources.ApplyResources(this.radioBtnImportText, "radioBtnImportText");
@@ -131,17 +147,18 @@ namespace RemarkableSync.OnenoteAddin
             this.radioBtnImportText.TabStop = true;
             this.radioBtnImportText.UseVisualStyleBackColor = true;
             // 
-            // radioBtnImportGraphics
+            // labelLanguage
             // 
-            resources.ApplyResources(this.radioBtnImportGraphics, "radioBtnImportGraphics");
-            this.radioBtnImportGraphics.Name = "radioBtnImportGraphics";
-            this.radioBtnImportGraphics.UseVisualStyleBackColor = true;
+            resources.ApplyResources(this.labelLanguage, "labelLanguage");
+            this.labelLanguage.Name = "labelLanguage";
+            this.labelLanguage.Click += new System.EventHandler(this.labelLanguage_Click);
             // 
-            // radioBtnImportBoth
+            // cboLanguage
             // 
-            resources.ApplyResources(this.radioBtnImportBoth, "radioBtnImportBoth");
-            this.radioBtnImportBoth.Name = "radioBtnImportBoth";
-            this.radioBtnImportBoth.UseVisualStyleBackColor = true;
+            this.tableLayoutGraphicWidth.SetColumnSpan(this.cboLanguage, 2);
+            this.cboLanguage.FormattingEnabled = true;
+            resources.ApplyResources(this.cboLanguage, "cboLanguage");
+            this.cboLanguage.Name = "cboLanguage";
             // 
             // RmDownloadForm
             // 
@@ -176,5 +193,7 @@ namespace RemarkableSync.OnenoteAddin
         private System.Windows.Forms.RadioButton radioBtnImportBoth;
         private System.Windows.Forms.RadioButton radioBtnImportGraphics;
         private System.Windows.Forms.RadioButton radioBtnImportText;
+        private System.Windows.Forms.Label labelLanguage;
+        private System.Windows.Forms.ComboBox cboLanguage;
     }
 }

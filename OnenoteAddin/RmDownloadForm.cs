@@ -20,6 +20,45 @@ namespace RemarkableSync.OnenoteAddin
             Unknown
         }
 
+        internal class LanguageChoice
+        {
+            public string Value
+            {
+                get;
+                set;
+            }
+
+            public string Label
+            {
+                get;
+                set;
+            }
+
+            public override string ToString()
+            {
+                return Label;
+            }
+
+            public override bool Equals(Object obj)
+            {
+                //Check for null and compare run-time types.
+                if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+                {
+                    return false;
+                }
+                else
+                {
+                    LanguageChoice p = (LanguageChoice)obj;
+                    return p.Value == Value;
+                }
+            }
+
+            public override int GetHashCode()
+            {
+                return Value.GetHashCode();
+            }
+        }
+
         class RmTreeNode : TreeNode
         {
             public RmTreeNode(string id, string visibleName, bool isCollection)
@@ -55,6 +94,9 @@ namespace RemarkableSync.OnenoteAddin
         private IConfigStore _configStore;
         private string _settingsRegPath;
 
+        private static string _graphicWidthSettingName = "GraphicWidth";
+        private static string _languageSettingName = "RecognitionLanguage";
+
         public RmDownloadForm(Application application, string settingsRegPath)
         {
             _settingsRegPath = settingsRegPath;
@@ -67,6 +109,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private async void InitializeData()
         {
+            InitializeConfigs();
             rmTreeView.Nodes.Clear();
             lblInfo.Text = "Loading document list from reMarkable...";
 
@@ -120,6 +163,53 @@ namespace RemarkableSync.OnenoteAddin
             return;
         }
 
+        private void InitializeConfigs()
+        {
+            // graphics width
+            double width;
+            try
+            {
+                string widthString = _configStore.GetConfig(_graphicWidthSettingName);
+                if (widthString == null)
+                {
+                    throw new FormatException();
+                }
+                width = Convert.ToDouble(widthString);
+            }
+            catch (Exception)
+            {
+                width = 50.0;
+            }
+            numericGraphicWidth.Value = (decimal) width;
+
+            // recognition lanugage 
+            List<LanguageChoice> languages = new List<LanguageChoice>()
+            {
+                new LanguageChoice() { Label = "Chinese", Value = "zh_CN"},
+                new LanguageChoice() { Label = "English", Value = "en_US"},
+                new LanguageChoice() { Label = "French", Value = "fr_FR"},
+                new LanguageChoice() { Label = "German", Value = "de_DE"},
+                new LanguageChoice() { Label = "Japanese", Value = "ja_JP"},
+                new LanguageChoice() { Label = "Spanish", Value = "es_ES"},
+            };
+
+            string language = _configStore.GetConfig(_languageSettingName);
+            if (language == null)
+            {
+                language = "en_US";
+            }
+
+            int selectedIndex = languages.IndexOf(new LanguageChoice() { Value = language });
+            if (selectedIndex == -1)
+            {
+                languages.IndexOf(new LanguageChoice() { Value = "en_US" });
+            }
+
+            cboLanguage.DataSource = languages;
+            cboLanguage.SelectedIndex = selectedIndex;
+
+        }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
@@ -134,7 +224,7 @@ namespace RemarkableSync.OnenoteAddin
             }
 
             RmTreeNode rmTreeNode = (RmTreeNode) rmTreeView.SelectedNode;
-            double zoom = (double)numericGraphicWidth.Value / 100.0;
+            double zoom = (double)numericGraphicWidth.Value;
             Logger.LogMessage($"Selected: {rmTreeNode.VisibleName} | {rmTreeNode.ID}");
 
             ImportMode mode = ImportMode.Unknown;
@@ -151,9 +241,15 @@ namespace RemarkableSync.OnenoteAddin
                 mode = ImportMode.Both;
             }
 
+            string language = "en_US";
+            if (cboLanguage.SelectedItem != null)
+            {
+                language = ((LanguageChoice)(cboLanguage.SelectedItem)).Value;
+            }
+
             try
             {
-                bool success = await ImportDocument(rmTreeNode, mode, zoom);
+                bool success = await ImportDocument(rmTreeNode, mode, zoom, language);
                 Logger.LogMessage("Import " + (success ? "successful" : "failed"));
             }
             catch (Exception err)
@@ -166,8 +262,16 @@ namespace RemarkableSync.OnenoteAddin
         }
 
 
-        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, ImportMode mode, double zoom = 0.5)
+        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, ImportMode mode, double zoom = 50.0, string language = "en_US")
         {
+            Logger.LogMessage($"Saving settings: zoom: {zoom}, language: {language}");
+            Dictionary<string, string> configs = new Dictionary<string, string>();
+            configs[_graphicWidthSettingName] = zoom.ToString();
+            configs[_languageSettingName] = language;
+            _configStore.SetConfigs(configs);
+
+            zoom = zoom / 100.0;
+
             if (rmTreeNode.IsCollection)
             {
                 MessageBox.Show(this, "Only document can be imported");
@@ -195,11 +299,11 @@ namespace RemarkableSync.OnenoteAddin
             switch (mode)
             {
                 case ImportMode.Text:
-                    return await ImportContentAsText(pages, rmTreeNode.VisibleName);
+                    return await ImportContentAsText(pages, rmTreeNode.VisibleName, language);
                 case ImportMode.Graphics:
                     return ImportContentAsGraphics(pages, rmTreeNode.VisibleName, zoom);
                 case ImportMode.Both:
-                    return await ImportContentAsBoth(pages, rmTreeNode.VisibleName, zoom);
+                    return await ImportContentAsBoth(pages, rmTreeNode.VisibleName, zoom, language);
                 default:
                     Logger.LogMessage($"ImportDocument() - unknown import mode: {mode}");
                     break;
@@ -207,11 +311,11 @@ namespace RemarkableSync.OnenoteAddin
             return true;
         }
 
-        private async Task<bool> ImportContentAsText(List<RmPage> pages, string visibleName)
+        private async Task<bool> ImportContentAsText(List<RmPage> pages, string visibleName, string language)
         {
             lblInfo.Text = $"Digitising {visibleName}...";
 
-            List<string> results = await GetHwrResultAsync(pages);
+            List<string> results = await GetHwrResultAsync(pages, language);
             if (results != null)
             {
                 UpdateOneNoteWithHwrResult(visibleName, results);
@@ -229,11 +333,11 @@ namespace RemarkableSync.OnenoteAddin
             return true;
         }
 
-        private async Task<List<string>> GetHwrResultAsync(List<RmPage> pages)
+        private async Task<List<string>> GetHwrResultAsync(List<RmPage> pages, string language)
         {
             Logger.LogMessage($"GetHwrResultAsync() - requesting hand writing recognition for {pages.Count} pages");
             MyScriptClient hwrClient = new MyScriptClient(_configStore);
-            var hwrResults = (await Task.WhenAll(pages.Select((page, index) => hwrClient.RequestHwr(page, index)))).ToList();
+            var hwrResults = (await Task.WhenAll(pages.Select((page, index) => hwrClient.RequestHwr(page, index, language)))).ToList();
             hwrResults.Sort((result1, result2) => result1.Item1.CompareTo(result2.Item1));
             return hwrResults.Select(result => result.Item2).ToList();
         }
@@ -267,11 +371,11 @@ namespace RemarkableSync.OnenoteAddin
             return true;
         }
 
-        private async Task<bool> ImportContentAsBoth(List<RmPage> pages, string visibleName, double zoom)
+        private async Task<bool> ImportContentAsBoth(List<RmPage> pages, string visibleName, double zoom, string language)
         {
             lblInfo.Text = $"Importing {visibleName} as both text and graphics...";
 
-            List<string> textResults = await GetHwrResultAsync(pages);
+            List<string> textResults = await GetHwrResultAsync(pages, language);
             List<Bitmap> graphicsResults = RmLinesDrawer.DrawPages(pages);
             if (textResults.Count != graphicsResults.Count)
             {
@@ -312,6 +416,11 @@ namespace RemarkableSync.OnenoteAddin
         private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             _rmDataSource?.Dispose();
+        }
+
+        private void labelLanguage_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

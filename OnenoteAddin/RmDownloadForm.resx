@@ -283,7 +283,7 @@
     <value>3, 5, 3, 0</value>
   </data>
   <data name="lblGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>116, 26</value>
+    <value>104, 30</value>
   </data>
   <data name="lblGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -310,13 +310,13 @@
     <value>Fill</value>
   </data>
   <data name="numericGraphicWidth.Location" type="System.Drawing.Point, System.Drawing">
-    <value>125, 5</value>
+    <value>113, 5</value>
   </data>
   <data name="numericGraphicWidth.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 5, 3, 3</value>
   </data>
   <data name="numericGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>61, 20</value>
+    <value>72, 20</value>
   </data>
   <data name="numericGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -343,13 +343,13 @@
     <value>Microsoft Sans Serif, 9.75pt</value>
   </data>
   <data name="lblGraphicWidthUnit.Location" type="System.Drawing.Point, System.Drawing">
-    <value>192, 5</value>
+    <value>191, 5</value>
   </data>
   <data name="lblGraphicWidthUnit.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 5, 3, 0</value>
   </data>
   <data name="lblGraphicWidthUnit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>35, 26</value>
+    <value>36, 30</value>
   </data>
   <data name="lblGraphicWidthUnit.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -369,8 +369,71 @@
   <data name="&gt;&gt;lblGraphicWidthUnit.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+  <data name="labelLanguage.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelLanguage.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="labelLanguage.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 9.75pt</value>
+  </data>
+  <data name="labelLanguage.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 40</value>
+  </data>
+  <data name="labelLanguage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 5, 3, 3</value>
+  </data>
+  <data name="labelLanguage.Size" type="System.Drawing.Size, System.Drawing">
+    <value>104, 27</value>
+  </data>
+  <data name="labelLanguage.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="labelLanguage.Text" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="labelLanguage.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>TopRight</value>
+  </data>
+  <data name="&gt;&gt;labelLanguage.Name" xml:space="preserve">
+    <value>labelLanguage</value>
+  </data>
+  <data name="&gt;&gt;labelLanguage.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelLanguage.Parent" xml:space="preserve">
+    <value>tableLayoutGraphicWidth</value>
+  </data>
+  <data name="&gt;&gt;labelLanguage.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="cboLanguage.Location" type="System.Drawing.Point, System.Drawing">
+    <value>113, 40</value>
+  </data>
+  <data name="cboLanguage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 5, 3, 3</value>
+  </data>
+  <data name="cboLanguage.Size" type="System.Drawing.Size, System.Drawing">
+    <value>114, 21</value>
+  </data>
+  <data name="cboLanguage.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;cboLanguage.Name" xml:space="preserve">
+    <value>cboLanguage</value>
+  </data>
+  <data name="&gt;&gt;cboLanguage.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;cboLanguage.Parent" xml:space="preserve">
+    <value>tableLayoutGraphicWidth</value>
+  </data>
+  <data name="&gt;&gt;cboLanguage.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
   <data name="tableLayoutGraphicWidth.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Top</value>
+    <value>Fill</value>
   </data>
   <data name="tableLayoutGraphicWidth.Location" type="System.Drawing.Point, System.Drawing">
     <value>239, 415</value>
@@ -379,10 +442,10 @@
     <value>3, 15, 3, 3</value>
   </data>
   <data name="tableLayoutGraphicWidth.RowCount" type="System.Int32, mscorlib">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="tableLayoutGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>230, 31</value>
+    <value>230, 100</value>
   </data>
   <data name="tableLayoutGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -400,7 +463,7 @@
     <value>4</value>
   </data>
   <data name="tableLayoutGraphicWidth.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
-    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="lblGraphicWidth" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="numericGraphicWidth" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblGraphicWidthUnit" Row="0" RowSpan="1" Column="2" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,64.73684,Percent,35.26316,Absolute,40" /&gt;&lt;Rows Styles="Percent,50,Percent,50" /&gt;&lt;/TableLayoutSettings&gt;</value>
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="lblGraphicWidth" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="numericGraphicWidth" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblGraphicWidthUnit" Row="0" RowSpan="1" Column="2" ColumnSpan="1" /&gt;&lt;Control Name="labelLanguage" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="cboLanguage" Row="1" RowSpan="1" Column="1" ColumnSpan="2" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,58.64197,Percent,41.35803,Absolute,41" /&gt;&lt;Rows Styles="Absolute,35,Absolute,35,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <data name="radioBtnImportBoth.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>

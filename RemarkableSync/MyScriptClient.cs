@@ -39,7 +39,7 @@ namespace RemarkableSync
             LoadConfig();
         }
 
-        public async Task<Tuple<int, string>> RequestHwr(RmPage page, int pageIndex)
+        public async Task<Tuple<int, string>> RequestHwr(RmPage page, int pageIndex, string language)
         {
             Tuple<int, string> resultTuple = Tuple.Create<int, string>(pageIndex, null);
 
@@ -50,7 +50,7 @@ namespace RemarkableSync
             }
 
             string responseContentString = "";
-            HwrRequestBundle requestBundle = CreateHwrRequestBundle(page);
+            HwrRequestBundle requestBundle = CreateHwrRequestBundle(page, language);
 
             try
             {
@@ -116,12 +116,13 @@ namespace RemarkableSync
             WriteConfig(); 
         }
 
-        private HwrRequestBundle CreateHwrRequestBundle(RmPage pages)
+        private HwrRequestBundle CreateHwrRequestBundle(RmPage pages, string language)
         {
             HwrRequest request = new HwrRequest();
 
             request.xDPI = request.yDPI = 226;
             request.contentType = "Text";
+            request.configuration = new Configuration() { lang = language };
             request.strokeGroups = new StrokeGroup[1];
 
             var strokeGroupBundle = PageToStrokeGroupBundle(pages);
