@@ -18,6 +18,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnenoteAddin", "OnenoteAddi
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "OnenoteAddinSetup", "OnenoteAddinSetup\OnenoteAddinSetup.vdproj", "{166B26BF-F8F8-4298-8D8A-A27420646FE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RmCloudApiTester", "RmCloudApiTester\RmCloudApiTester.csproj", "{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{090B923F-25A0-4204-846C-71C0C7F50743} = {090B923F-25A0-4204-846C-71C0C7F50743}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +73,18 @@ Global
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|Any CPU.ActiveCfg = Release
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x64.ActiveCfg = Release
 		{166B26BF-F8F8-4298-8D8A-A27420646FE6}.Release|x86.ActiveCfg = Release
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Debug|x64.Build.0 = Debug|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Debug|x86.Build.0 = Debug|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Release|x64.ActiveCfg = Release|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Release|x64.Build.0 = Release|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Release|x86.ActiveCfg = Release|Any CPU
+		{7010FC29-A3C4-471D-B3C2-39EA7EBD6CEF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
