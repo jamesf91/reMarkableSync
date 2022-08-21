@@ -39,12 +39,12 @@ namespace RemarkableSync.OnenoteAddin
             this.lblGraphicWidth = new System.Windows.Forms.Label();
             this.numericGraphicWidth = new System.Windows.Forms.NumericUpDown();
             this.lblGraphicWidthUnit = new System.Windows.Forms.Label();
+            this.labelLanguage = new System.Windows.Forms.Label();
+            this.cboLanguage = new System.Windows.Forms.ComboBox();
             this.groupBoxImportOptions = new System.Windows.Forms.GroupBox();
             this.radioBtnImportBoth = new System.Windows.Forms.RadioButton();
             this.radioBtnImportGraphics = new System.Windows.Forms.RadioButton();
             this.radioBtnImportText = new System.Windows.Forms.RadioButton();
-            this.labelLanguage = new System.Windows.Forms.Label();
-            this.cboLanguage = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel.SuspendLayout();
             this.tableLayoutGraphicWidth.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericGraphicWidth)).BeginInit();
@@ -118,6 +118,19 @@ namespace RemarkableSync.OnenoteAddin
             resources.ApplyResources(this.lblGraphicWidthUnit, "lblGraphicWidthUnit");
             this.lblGraphicWidthUnit.Name = "lblGraphicWidthUnit";
             // 
+            // labelLanguage
+            // 
+            resources.ApplyResources(this.labelLanguage, "labelLanguage");
+            this.labelLanguage.Name = "labelLanguage";
+            this.labelLanguage.Click += new System.EventHandler(this.labelLanguage_Click);
+            // 
+            // cboLanguage
+            // 
+            this.tableLayoutGraphicWidth.SetColumnSpan(this.cboLanguage, 2);
+            this.cboLanguage.FormattingEnabled = true;
+            resources.ApplyResources(this.cboLanguage, "cboLanguage");
+            this.cboLanguage.Name = "cboLanguage";
+            // 
             // groupBoxImportOptions
             // 
             this.groupBoxImportOptions.Controls.Add(this.radioBtnImportBoth);
@@ -146,19 +159,6 @@ namespace RemarkableSync.OnenoteAddin
             this.radioBtnImportText.Name = "radioBtnImportText";
             this.radioBtnImportText.TabStop = true;
             this.radioBtnImportText.UseVisualStyleBackColor = true;
-            // 
-            // labelLanguage
-            // 
-            resources.ApplyResources(this.labelLanguage, "labelLanguage");
-            this.labelLanguage.Name = "labelLanguage";
-            this.labelLanguage.Click += new System.EventHandler(this.labelLanguage_Click);
-            // 
-            // cboLanguage
-            // 
-            this.tableLayoutGraphicWidth.SetColumnSpan(this.cboLanguage, 2);
-            this.cboLanguage.FormattingEnabled = true;
-            resources.ApplyResources(this.cboLanguage, "cboLanguage");
-            this.cboLanguage.Name = "cboLanguage";
             // 
             // RmDownloadForm
             // 

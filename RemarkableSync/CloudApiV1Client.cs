@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RemarkableSync
@@ -67,7 +66,7 @@ namespace RemarkableSync
             }
         }
 
-        public async Task<List<RmItem>> GetAllItems()
+        public async Task<List<RmItem>> GetAllItems(CancellationToken cancellationToken, IProgress<string> progress)
         {
             HttpResponseMessage response = await Request(
                 HttpMethod.Get,

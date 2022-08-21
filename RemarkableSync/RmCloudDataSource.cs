@@ -9,6 +9,7 @@ using System.Net;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
+using System.Threading;
 
 // TODO: Exception handling
 namespace RemarkableSync
@@ -92,13 +93,13 @@ namespace RemarkableSync
             return false;
         }
 
-        public async Task<List<RmItem>> GetItemHierarchy()
+        public async Task<List<RmItem>> GetItemHierarchy(CancellationToken cancellationToken, IProgress<string> progress)
         {
-            List<RmItem> collection = await GetAllItems();
+            List<RmItem> collection = await GetAllItems(cancellationToken, progress);
             return getChildItemsRecursive("", ref collection);
         }
 
-        private async Task<List<RmItem>> GetAllItems()
+        private async Task<List<RmItem>> GetAllItems(CancellationToken cancellationToken, IProgress<string> progress)
         {
             if (!_initialized)
             {
@@ -112,7 +113,7 @@ namespace RemarkableSync
                 throw new Exception(errMsg);
             }
 
-            return await _apiClient.GetAllItems();
+            return await _apiClient.GetAllItems(cancellationToken, progress);
         }
 
         public async Task<RmDownloadedDoc> DownloadDocument(RmItem item)
@@ -245,14 +246,13 @@ namespace RemarkableSync
                 var v2ScopeFieldCount = scopeFields.Where(field => (field == "sync:fox" || field == "sync:tortoise" || field == "sync:hare")).ToList().Count;
                 if (v2ScopeFieldCount == 0)
                 {
-                    Logger.LogMessage($"Creating V1 api client");
+                    Logger.LogMessage("Creating V1 api client");
                     _apiClient = new CloudApiV1Client(_client, _hiddenConfigStore);
                 }
                 else
                 {
-                    Logger.LogMessage($"Creating V2 api client");
-
-                    // TODO: v2 api client
+                    Logger.LogMessage("Creating V2 api client");
+                    _apiClient = new CloudApiV2Client(_client);
                 }
             }
             catch (Exception)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -52,7 +53,7 @@ namespace RemarkableSync
             }
         }
 
-        public async Task<List<RmItem>> GetItemHierarchy()
+        public async Task<List<RmItem>> GetItemHierarchy(CancellationToken cancellationToken, IProgress<string> progress)
         {
             List<RmItem> collection = await Task.Run(GetAllItems);
             return getChildItemsRecursive("", ref collection);
