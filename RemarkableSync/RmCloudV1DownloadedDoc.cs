@@ -5,10 +5,10 @@ using System.IO.Compression;
 
 namespace RemarkableSync
 {
-    public class RmCloudDownloadedDoc: RmDownloadedDoc
+    public class RmCloudV1DownloadedDoc: RmDownloadedDoc
     {
 
-        public RmCloudDownloadedDoc(ZipArchive archive, string id) : base(id)
+        public RmCloudV1DownloadedDoc(ZipArchive archive, string id) : base(id)
         {
             try
             {

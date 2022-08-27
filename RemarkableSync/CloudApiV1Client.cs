@@ -28,7 +28,7 @@ namespace RemarkableSync
         { 
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item)
+        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
         {
             if (item.Type != RmItem.DocumentType)
             {
@@ -57,7 +57,7 @@ namespace RemarkableSync
                 Stream stream = await _client.GetStreamAsync(blobUrl);
                 ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read);
 
-                return new RmCloudDownloadedDoc(archive, item.ID);
+                return new RmCloudV1DownloadedDoc(archive, item.ID);
             }
             catch (Exception err)
             {

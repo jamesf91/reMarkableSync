@@ -116,7 +116,7 @@ namespace RemarkableSync
             return await _apiClient.GetAllItems(cancellationToken, progress);
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item)
+        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
         {
             if (!_initialized)
             {
@@ -130,7 +130,7 @@ namespace RemarkableSync
                 throw new Exception(errMsg);
             }
 
-            return await _apiClient.DownloadDocument(item);
+            return await _apiClient.DownloadDocument(item, cancellationToken, progress);
         }
 
         public void Dispose()

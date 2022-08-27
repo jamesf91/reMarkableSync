@@ -93,6 +93,7 @@ namespace RemarkableSync.OnenoteAddin
         private Application _application;
         private IConfigStore _configStore;
         private string _settingsRegPath;
+        private CancellationTokenSource _cancellationSource;
 
         private static string _graphicWidthSettingName = "GraphicWidth";
         private static string _languageSettingName = "RecognitionLanguage";
@@ -102,6 +103,7 @@ namespace RemarkableSync.OnenoteAddin
             _settingsRegPath = settingsRegPath;
             _configStore = new WinRegistryConfigStore(_settingsRegPath);
             _application = application;
+            _cancellationSource = new CancellationTokenSource();
 
             InitializeComponent();
             InitializeData();            
@@ -144,11 +146,10 @@ namespace RemarkableSync.OnenoteAddin
                             break;
                     }
 
-                    CancellationTokenSource source = new CancellationTokenSource();
                     Progress<string> progress = new Progress<string>((string updateText) => {
                         lblInfo.Invoke((Action)(() => lblInfo.Text = $"Getting document list:\n{updateText}"));
                     });
-                    rootItems = await _rmDataSource.GetItemHierarchy(source.Token, progress);
+                    rootItems = await _rmDataSource.GetItemHierarchy(_cancellationSource.Token, progress);
                 });
 
                 Logger.LogMessage("Got item hierarchy from remarkable cloud");
@@ -292,7 +293,11 @@ namespace RemarkableSync.OnenoteAddin
 
             lblInfo.Text = $"Downloading {rmTreeNode.VisibleName}...";
 
-            using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item))
+            Progress<string> progress = new Progress<string>((string updateText) => {
+                lblInfo.Invoke((Action)(() => lblInfo.Text = $"Getting document list:\n{updateText}"));
+            });
+
+            using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item, _cancellationSource.Token, progress))
             {
                 Logger.LogMessage("document downloaded");
                 for (int i = 0; i < doc.PageCount; ++i)
@@ -420,6 +425,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            _cancellationSource.Cancel();
             _rmDataSource?.Dispose();
         }
 

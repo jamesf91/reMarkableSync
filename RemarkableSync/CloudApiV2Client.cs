@@ -23,9 +23,14 @@ namespace RemarkableSync
         {
         }
 
-        public Task<RmDownloadedDoc> DownloadDocument(RmItem item)
+        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
         {
-            throw new NotImplementedException();
+            var fileList = _docTreeProcessor.GetFileListForDocument(item.ID);
+
+            return await Task.Run(() =>
+            {
+                return new RmCloudV2DownloadedDoc(item.ID, fileList, _client, cancellationToken, progress);
+            });
         }
 
         public async Task<List<RmItem>> GetAllItems(CancellationToken cancellationToken, IProgress<string> progress)

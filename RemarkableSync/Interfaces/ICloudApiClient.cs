@@ -9,7 +9,7 @@ namespace RemarkableSync
     {
         Task<List<RmItem>> GetAllItems(CancellationToken cancellationToken, IProgress<string> progress);
 
-        Task<RmDownloadedDoc> DownloadDocument(RmItem item);
+        Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress);
 
     }
 }

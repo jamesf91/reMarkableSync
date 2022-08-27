@@ -159,7 +159,8 @@
     <Compile Include="MyScriptResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RmCloudDataSource.cs" />
-    <Compile Include="RmCloudDownloadedDoc.cs" />
+    <Compile Include="RmCloudV1DownloadedDoc.cs" />
+    <Compile Include="RmCloudV2DownloadedDoc.cs" />
     <Compile Include="RmDownloadedDoc.cs" />
     <Compile Include="RmItem.cs" />
     <Compile Include="RmLines.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="RmSftpDownloadedDoc.cs" />
     <Compile Include="RmSftpJsonTypes.cs" />
     <Compile Include="V2DocTreeProcessor.cs" />
+    <Compile Include="V2HttpHelper.cs" />
     <Compile Include="WinRegistryConfigStore.cs" />
   </ItemGroup>
   <ItemGroup>

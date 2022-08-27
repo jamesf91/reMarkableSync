@@ -11,14 +11,11 @@ using System.Threading.Tasks;
 
 namespace RemarkableSync
 {
-    public class V2DocTreeProcessor
+    class V2DocTreeProcessor
     {
         private static string AppFolder = "remarkableSync";
         private static string TreeFile = "doctree.json";
 
-        private static string BlobHost = "https://rm-blob-storage-prod.appspot.com";
-        private static string DownloadUrl = BlobHost + "/api/v1/signed-urls/downloads";
-        private static string HeaderGeneration = "x-goog-generation";
         private static string SchemaVersion = "3";
         private static char Delimiter = ':';
 
@@ -26,8 +23,8 @@ namespace RemarkableSync
         private Dictionary<string, Doc> _docs;
         private long _generation;
         private string _rootHash;
-        private HttpClient _client;
         private object _taskProgress;
+        private V2HttpHelper _httpHelper;
 
         public V2DocTreeProcessor(HttpClient client)
         {
@@ -35,8 +32,8 @@ namespace RemarkableSync
             _docs = new Dictionary<string, Doc>();
             _generation = 0;
             _rootHash = "";
-            _client = client;
             _taskProgress = 0;
+            _httpHelper = new V2HttpHelper(client);
 
             Initialize();
         }
@@ -45,7 +42,7 @@ namespace RemarkableSync
         {
             // TODO: progress reporting
             Logger.LogMessage("Entering ... ");
-            BlobStream rootHashBlob = await GetBlobStreamFromHashAsync("root");
+            BlobStream rootHashBlob = await _httpHelper.GetBlobStreamFromHashAsync("root");
             if (rootHashBlob == null)
             {
                 Logger.LogMessage("Unable to get root blob for syncing");
@@ -60,7 +57,7 @@ namespace RemarkableSync
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            BlobStream rootBlob = await GetBlobStreamFromHashAsync(rootHashBlob.Blob);
+            BlobStream rootBlob = await _httpHelper.GetBlobStreamFromHashAsync(rootHashBlob.Blob);
             var latestDocFiles = ParseIndex(rootBlob.Blob);
             if (latestDocFiles == null)
             {
@@ -85,11 +82,6 @@ namespace RemarkableSync
                 {
                     var result = GetMetadataForDocAsync(doc, docsToRead.Count, cancellationToken, progress).Result;
                 });
-
-            //for (int i = 0; i < 3; ++i)
-            //{
-            //    await GetMetadataForDocAsync(docsToRead[i], cancellationToken, progress);
-            //}
 
             // this needs to be done last to ensure data is valid before accepting new root hash
             _rootHash = rootHashBlob.Blob;
@@ -119,6 +111,22 @@ namespace RemarkableSync
             }
 
             return items;
+        }
+
+        public List<DocFile> GetFileListForDocument(string docId)
+        {
+            List<DocFile> fileList = new List<DocFile>();
+            lock (_docs)
+            {
+                if (!_docs.ContainsKey(docId))
+                {
+                    Logger.LogMessage($"Unknown docId: {docId} ");
+                    return fileList;
+                }
+
+                fileList = _docs[docId].Files.ToList();
+            }
+            return fileList;
         }
 
         private void Initialize()
@@ -173,69 +181,6 @@ namespace RemarkableSync
             catch (Exception err)
             {
                 Logger.LogMessage($"Failed to read tree from disk. err: {err.ToString()} ");
-                return null;
-            }
-        }
-
-        private async Task<string> GetUrlAsync(string hash)
-        {
-            try
-            {
-                var requestContent = new BlobStorageRequest
-                {
-                    http_method = "GET",
-                    relative_path = hash
-                };
-                HttpResponseMessage response = await HttpClientJsonExtensions.PostAsJsonAsync(_client, new Uri(DownloadUrl), requestContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Request failed with status code {response.StatusCode}");
-                }
-
-                BlobStorageResponse blobResponse = await HttpContentJsonExtensions.ReadFromJsonAsync<BlobStorageResponse>(response.Content);
-                return blobResponse.url;
-            }
-            catch (Exception err)
-            {
-                Logger.LogMessage($"Failed to get url for hash: {hash}. err: {err.ToString()} ");
-                return "";
-            }
-        }
-
-        private async Task<BlobStream> GetBlobStreamFromHashAsync(string hash)
-        {
-            Logger.LogMessage($"Entering: ..  hash = {hash}");
-            try
-            {
-                string url = await GetUrlAsync(hash);
-                if (url == "")
-                {
-                    throw new Exception($"Failed to determine GET url");
-                }
-
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(url),
-                    Method = HttpMethod.Get
-                };
-
-                HttpResponseMessage response = await _client.SendAsync(request);
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Request failed with status code {response.StatusCode}");
-                }
-
-                BlobStream blobStream = new BlobStream
-                {
-                    Generation = long.Parse(response.Headers.GetValues(HeaderGeneration).First()),
-                    Blob = await response.Content.ReadAsStringAsync()
-                };
-
-                return blobStream;
-            }
-            catch (Exception err)
-            {
-                Logger.LogMessage($"Failed to complete GET for hash: {hash}. err: {err.ToString()} ");
                 return null;
             }
         }
@@ -343,7 +288,7 @@ namespace RemarkableSync
 
         private async Task<bool> GetMetadataForDocAsync(Doc doc, int totalCount, CancellationToken cancellationToken, IProgress<string> progress)
         {
-            BlobStream docBlob = await GetBlobStreamFromHashAsync(doc.Hash);
+            BlobStream docBlob = await _httpHelper.GetBlobStreamFromHashAsync(doc.Hash);
             var docfiles = ParseIndex(docBlob.Blob);
             if (docfiles == null)
             {
@@ -373,7 +318,7 @@ namespace RemarkableSync
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            BlobStream metadataBlobStream = await GetBlobStreamFromHashAsync(docfiles[metadataDocId].Hash);
+            BlobStream metadataBlobStream = await _httpHelper.GetBlobStreamFromHashAsync(docfiles[metadataDocId].Hash);
             try
             {
                 MetadataFile metadata = JsonSerializer.Deserialize<MetadataFile>(metadataBlobStream.Blob);
@@ -451,7 +396,7 @@ namespace RemarkableSync
         public int Size { get; set; }
     }
 
-    public class MetadataFile
+    class MetadataFile
     {
         public string visibleName { get; set; }
         public string type { get; set; }
@@ -467,25 +412,6 @@ namespace RemarkableSync
         public bool metadatamodified { get; set; }
     }
 
-    class BlobStorageRequest
-    {
-        public string http_method { get; set; }
-        public string relative_path { get; set; }
-    }
-
-    class BlobStorageResponse
-    {
-        public string relative_path { get; set; }
-        public string url { get; set; }
-        public string expires { get; set; }
-        public string method { get; set; }
-    }
-
-    class BlobStream
-    {
-        public string Blob { get; set; }
-        public long Generation { get; set; }
-    }
 
 
 }
