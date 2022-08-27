@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace RemarkableSync
 {
-    public interface IRmDataSource: IDisposable
+    interface ICloudApiClient : IDisposable
     {
-        Task<List<RmItem>> GetItemHierarchy(CancellationToken cancellationToken, IProgress<string> progress);
+        Task<List<RmItem>> GetAllItems(CancellationToken cancellationToken, IProgress<string> progress);
 
         Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress);
+
     }
 }

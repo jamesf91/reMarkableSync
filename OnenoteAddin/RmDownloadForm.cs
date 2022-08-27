@@ -93,6 +93,7 @@ namespace RemarkableSync.OnenoteAddin
         private Application _application;
         private IConfigStore _configStore;
         private string _settingsRegPath;
+        private CancellationTokenSource _cancellationSource;
 
         private static string _graphicWidthSettingName = "GraphicWidth";
         private static string _languageSettingName = "RecognitionLanguage";
@@ -102,6 +103,7 @@ namespace RemarkableSync.OnenoteAddin
             _settingsRegPath = settingsRegPath;
             _configStore = new WinRegistryConfigStore(_settingsRegPath);
             _application = application;
+            _cancellationSource = new CancellationTokenSource();
 
             InitializeComponent();
             InitializeData();            
@@ -117,7 +119,7 @@ namespace RemarkableSync.OnenoteAddin
 
             try
             {
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     int connMethod = -1;
                     try
@@ -143,8 +145,19 @@ namespace RemarkableSync.OnenoteAddin
                             Logger.LogMessage("Using rm cloud data source");
                             break;
                     }
+
+                    Progress<string> progress = new Progress<string>((string updateText) => {
+                        lblInfo.Invoke((Action)(() => lblInfo.Text = $"Getting document list:\n{updateText}"));
+                    });
+                    rootItems = await _rmDataSource.GetItemHierarchy(_cancellationSource.Token, progress);
                 });
-                rootItems = await _rmDataSource.GetItemHierarchy();
+
+                Logger.LogMessage("Got item hierarchy from remarkable cloud");
+                var treeNodeList = RmTreeNode.FromRmItem(rootItems);
+
+                rmTreeView.Nodes.AddRange(treeNodeList.ToArray());
+                Logger.LogMessage("Added nodes to tree view");
+                lblInfo.Text = "Select document to load into OneNote.";
             }
             catch (Exception err)
             {
@@ -153,13 +166,6 @@ namespace RemarkableSync.OnenoteAddin
                 Close();
                 return;
             }
-
-            Logger.LogMessage("Got item hierarchy from remarkable cloud");
-            var treeNodeList = RmTreeNode.FromRmItem(rootItems);
-
-            rmTreeView.Nodes.AddRange(treeNodeList.ToArray());
-            Logger.LogMessage("Added nodes to tree view");
-            lblInfo.Text = "Select document to load into OneNote.";
             return;
         }
 
@@ -292,7 +298,11 @@ namespace RemarkableSync.OnenoteAddin
 
             lblInfo.Text = $"Downloading {rmTreeNode.VisibleName}...";
 
-            using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item))
+            Progress<string> progress = new Progress<string>((string updateText) => {
+                lblInfo.Invoke((Action)(() => lblInfo.Text = $"Getting document list:\n{updateText}"));
+            });
+
+            using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item, _cancellationSource.Token, progress))
             {
                 Logger.LogMessage("document downloaded");
                 for (int i = 0; i < doc.PageCount; ++i)
@@ -420,6 +430,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private void RmDownloadForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            _cancellationSource.Cancel();
             _rmDataSource?.Dispose();
         }
 

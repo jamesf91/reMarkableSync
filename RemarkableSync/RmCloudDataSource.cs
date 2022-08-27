@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.Net;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Threading;
 
 // TODO: Exception handling
 namespace RemarkableSync
@@ -21,20 +23,20 @@ namespace RemarkableSync
         private static string Device = "desktop-windows";
         private static string DefaultDeviceTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/device/new";
         private static string DefaultUserTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/user/new";
-        private static string DefaultBaseUrl = "https://document-storage-production-dot-remarkable-production.appspot.com";
         private static string CustomDeviceTokenUrlName = "CustomDeviceTokenUrl";
         private static string CustomUserTokenUrlName = "CustomUserTokenUrl";
-        private static string CustomBaseUrlName = "CustomBaseUrl";
+        
 
         private string _deviceTokenUrl;
         private string _userTokenUrl;
-        private string _baseUrl;
         private string _devicetoken;
         private string _usertoken;
         private bool _initialized;
 
         private HttpClient _client;
         private IConfigStore _configStore;
+        private IConfigStore _hiddenConfigStore;
+        private ICloudApiClient _apiClient;
 
         public RmCloudDataSource(IConfigStore configStore, IConfigStore hiddenConfigStore = null)
         {
@@ -42,6 +44,8 @@ namespace RemarkableSync
             _devicetoken = null;
             _initialized = false;
             _configStore = configStore;
+            _hiddenConfigStore = hiddenConfigStore;
+            _apiClient = null;
 
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("user-agent", UserAgent);
@@ -49,7 +53,7 @@ namespace RemarkableSync
             // check for hidden configs
             _deviceTokenUrl = hiddenConfigStore?.GetConfig(CustomDeviceTokenUrlName) ?? DefaultDeviceTokenUrl;
             _userTokenUrl = hiddenConfigStore?.GetConfig(CustomUserTokenUrlName) ?? DefaultUserTokenUrl;
-            _baseUrl = hiddenConfigStore?.GetConfig(CustomBaseUrlName) ?? DefaultBaseUrl;
+            
         }
 
         public async Task<bool> RegisterWithOneTimeCode(string oneTimeCode)
@@ -89,86 +93,52 @@ namespace RemarkableSync
             return false;
         }
 
-        public async Task<List<RmItem>> GetItemHierarchy()
+        public async Task<List<RmItem>> GetItemHierarchy(CancellationToken cancellationToken, IProgress<string> progress)
         {
-            List<RmItem> collection = await GetAllItems();
+            List<RmItem> collection = await GetAllItems(cancellationToken, progress);
             return getChildItemsRecursive("", ref collection);
         }
 
-        private async Task<List<RmItem>> GetAllItems()
+        private async Task<List<RmItem>> GetAllItems(CancellationToken cancellationToken, IProgress<string> progress)
         {
             if (!_initialized)
             {
                 await Initialize();
             }
 
-            HttpResponseMessage response = await Request(
-                HttpMethod.Get,
-                "/document-storage/json/2/docs",
-                null,
-                null);
-
-            string responseContent = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
+            if (_apiClient == null)
             {
-                string errMsg = "GetAllItems request failed with status code " + response.StatusCode.ToString();
-                Logger.LogMessage($"Request failed with status code: {response.StatusCode.ToString()} and content: {responseContent}");
+                string errMsg = "Enable to create cloud API client." ;
+                Logger.LogMessage(errMsg);
                 throw new Exception(errMsg);
             }
 
-            List<RmItem> collection = JsonSerializer.Deserialize<List<RmItem>>(responseContent);
-            return collection;
+            return await _apiClient.GetAllItems(cancellationToken, progress);
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item)
+        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
         {
             if (!_initialized)
             {
                 await Initialize();
             }
 
-            if (item.Type != RmItem.DocumentType)
+            if (_apiClient == null)
             {
-                Logger.LogMessage($"item with id {item.ID} is not document type");
-                return null;
-
+                string errMsg = "Enable to create cloud API client.";
+                Logger.LogMessage(errMsg);
+                throw new Exception(errMsg);
             }
 
-            try
-            {
-                // first get the blob url
-                string url = $"/document-storage/json/2/docs?doc={WebUtility.UrlEncode(item.ID)}&withBlob=true";
-                HttpResponseMessage response = await Request(HttpMethod.Get, url, null, null);
-                if (!response.IsSuccessStatusCode)
-                {
-                    Logger.LogMessage("request failed with status code " + response.StatusCode.ToString());
-                    return null;
-                }
-                List<RmItem> items = JsonSerializer.Deserialize<List<RmItem>>(response.Content.ReadAsStringAsync().Result);
-                if (items.Count == 0)
-                {
-                    Logger.LogMessage("Failed to find document with id: " + item.ID);
-                    return null;
-                }
-                string blobUrl = items[0].BlobURLGet;
-                Stream stream = await _client.GetStreamAsync(blobUrl);
-                ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read);
-
-                return new RmCloudDownloadedDoc(archive, item.ID);
-            }
-            catch (Exception err)
-            {
-                Logger.LogMessage($"failed for id {item.ID}. Error: {err.Message}");
-                return null;
-            }
-
+            return await _apiClient.DownloadDocument(item, cancellationToken, progress);
         }
 
         public void Dispose()
         {
             _client?.Dispose();
             _configStore?.Dispose();
+            _hiddenConfigStore?.Dispose();
+            _apiClient?.Dispose();
         }
 
         private async Task<bool> Initialize()
@@ -196,19 +166,10 @@ namespace RemarkableSync
             mapConfigs[DeviceTokenName] = _devicetoken?.Length > 0 ? _devicetoken : EmptyToken;
             mapConfigs[UserTokenName] = _usertoken?.Length > 0 ? _usertoken : EmptyToken;
             _configStore.SetConfigs(mapConfigs);
-
-            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_usertoken}");
         }
 
         private async Task<HttpResponseMessage> Request(HttpMethod method, string url, Dictionary<string, string> header, HttpContent content)
         {
-            if (!url.StartsWith("http"))
-            {
-                if (!url.StartsWith("/"))
-                    url = "/" + url;
-                url = _baseUrl + url;
-            }
-
             Logger.LogMessage($"url is: {url}");
             var request = new HttpRequestMessage();
             request.RequestUri = new Uri(url);
@@ -246,19 +207,17 @@ namespace RemarkableSync
             {
                 byte[] responseContent = response.Content.ReadAsByteArrayAsync().Result;
                 _usertoken = Encoding.ASCII.GetString(responseContent);
+                _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_usertoken}");
                 WriteConfig();
+                InitializeApiClient();
                 Logger.LogMessage("user token renewed");
                 return true;
             }
             else
             {
-                throw new Exception("Can't register device");
+                Logger.LogMessage($"Renew session token failed with response code {response.StatusCode}");
+                throw new Exception("Can't renew sesion token");
             }
-        }
-
-        private bool IsAuthenticated()
-        {
-            return _devicetoken != null && _devicetoken.Length > 0 && _usertoken != null && _usertoken.Length > 0;
         }
 
         private List<RmItem> getChildItemsRecursive(string parentId, ref List<RmItem> items)
@@ -269,6 +228,38 @@ namespace RemarkableSync
                 child.Children = getChildItemsRecursive(child.ID, ref items);
             }
             return children;
+        }
+
+        private void InitializeApiClient()
+        {
+            if (_apiClient != null)
+            {
+                _apiClient.Dispose();
+            }
+
+            try
+            {
+                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                JwtSecurityToken jsonToken = handler.ReadToken(_usertoken) as JwtSecurityToken;
+                string scopeValue = jsonToken.Claims.First(claim => claim.Type == "scopes").Value;
+                var scopeFields = scopeValue.Split(' ');
+                var v2ScopeFieldCount = scopeFields.Where(field => (field == "sync:fox" || field == "sync:tortoise" || field == "sync:hare")).ToList().Count;
+                if (v2ScopeFieldCount == 0)
+                {
+                    Logger.LogMessage("Creating V1 api client");
+                    _apiClient = new CloudApiV1Client(_client, _hiddenConfigStore);
+                }
+                else
+                {
+                    Logger.LogMessage("Creating V2 api client");
+                    _apiClient = new CloudApiV2Client(_client);
+                }
+            }
+            catch (Exception)
+            {
+                Logger.LogMessage($"Unable to determine api version from user token");
+                throw new Exception("Unable to determine cloud API version");
+            }
         }
     }
 }

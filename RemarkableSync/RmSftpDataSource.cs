@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -52,13 +53,13 @@ namespace RemarkableSync
             }
         }
 
-        public async Task<List<RmItem>> GetItemHierarchy()
+        public async Task<List<RmItem>> GetItemHierarchy(CancellationToken cancellationToken, IProgress<string> progress)
         {
             List<RmItem> collection = await Task.Run(GetAllItems);
             return getChildItemsRecursive("", ref collection);
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item)
+        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
         {
             return await Task.Run(() =>
             {
@@ -69,6 +70,7 @@ namespace RemarkableSync
                 NotebookContent notebookContent = NotebookContent.FromStream(stream);
                 List<string> pageIDs = notebookContent.pages.ToList();
                 Logger.LogMessage($"Notebook \"{item.VissibleName}\" has {pageIDs.Count} pages");
+                progress.Report($"Loading {pageIDs.Count} pages from device");
 
                 RmSftpDownloadedDoc downloadedDoc = new RmSftpDownloadedDoc(ContentFolderPath, item.ID, pageIDs, _client);
                 return downloadedDoc;

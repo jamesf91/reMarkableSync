@@ -283,7 +283,7 @@
     <value>3, 5, 3, 0</value>
   </data>
   <data name="lblGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>104, 30</value>
+    <value>103, 30</value>
   </data>
   <data name="lblGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -310,13 +310,13 @@
     <value>Fill</value>
   </data>
   <data name="numericGraphicWidth.Location" type="System.Drawing.Point, System.Drawing">
-    <value>113, 5</value>
+    <value>112, 5</value>
   </data>
   <data name="numericGraphicWidth.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 5, 3, 3</value>
   </data>
   <data name="numericGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>72, 20</value>
+    <value>71, 20</value>
   </data>
   <data name="numericGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -343,13 +343,13 @@
     <value>Microsoft Sans Serif, 9.75pt</value>
   </data>
   <data name="lblGraphicWidthUnit.Location" type="System.Drawing.Point, System.Drawing">
-    <value>191, 5</value>
+    <value>189, 5</value>
   </data>
   <data name="lblGraphicWidthUnit.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 5, 3, 0</value>
   </data>
   <data name="lblGraphicWidthUnit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>36, 30</value>
+    <value>38, 30</value>
   </data>
   <data name="lblGraphicWidthUnit.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -385,7 +385,7 @@
     <value>3, 5, 3, 3</value>
   </data>
   <data name="labelLanguage.Size" type="System.Drawing.Size, System.Drawing">
-    <value>104, 27</value>
+    <value>103, 27</value>
   </data>
   <data name="labelLanguage.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -409,7 +409,7 @@
     <value>3</value>
   </data>
   <data name="cboLanguage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>113, 40</value>
+    <value>112, 40</value>
   </data>
   <data name="cboLanguage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 5, 3, 3</value>
@@ -463,7 +463,7 @@
     <value>4</value>
   </data>
   <data name="tableLayoutGraphicWidth.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
-    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="lblGraphicWidth" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="numericGraphicWidth" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblGraphicWidthUnit" Row="0" RowSpan="1" Column="2" ColumnSpan="1" /&gt;&lt;Control Name="labelLanguage" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="cboLanguage" Row="1" RowSpan="1" Column="1" ColumnSpan="2" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,58.64197,Percent,41.35803,Absolute,41" /&gt;&lt;Rows Styles="Absolute,35,Absolute,35,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="lblGraphicWidth" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="numericGraphicWidth" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblGraphicWidthUnit" Row="0" RowSpan="1" Column="2" ColumnSpan="1" /&gt;&lt;Control Name="labelLanguage" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="cboLanguage" Row="1" RowSpan="1" Column="1" ColumnSpan="2" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,58.64197,Percent,41.35803,Absolute,43" /&gt;&lt;Rows Styles="Absolute,35,Absolute,35,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <data name="radioBtnImportBoth.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
