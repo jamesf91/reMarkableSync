@@ -1,6 +1,13 @@
 # reMarkable OneNote Addin
 This is an OneNote AddIn for importing digitized notes from the reMarkable tablet.
 
+## New in Version 3
+Version 3 is a major version update that adds support for the new (2022) reMarkable cloud API.
+
+Big shoutout to [juruen/rmapi](https://github.com/juruen/rmapi) for working out all the nitty gritty of the new API.
+
+Please note that while the new cloud API is now supported, due to the way it works, it is **SIGNIFICANTLY** slower than the previous cloud API. For example, getting the whole document tree using the previous API required only a single HTTPS request, regardless of how many documents are in the tree. Using the new API, it now requires 4 HTTPS requests for **EACH** document/folder (i.e. if your device has 200 document, 800 HTTPS requests are now needed to build up the document tree). While optimizations such as caching and multithreaded requests are used, it is still much much slower to populate the document tree, especially the first time the AddIn syncs to the device using the new API. 
+
 ## Installation
 Latest release installer available at <https://github.com/jamesf91/RemarkableSync/releases/latest>  
 
@@ -45,3 +52,4 @@ I'd like to thanks for following people and/or sites for inspiration, informatio
 - [subutux/rmapy](https://github.com/subutux/rmapy) for showing me how to interface with the reMarkable cloud.
 - [bsdz/remarkable-layers](https://github.com/bsdz/remarkable-layers) for the Python parser for the .line format used by reMarkable, which I ported to C# for this project.
 - [Lim Bio Liong at CodeProject](https://www.codeproject.com/Articles/12579/Building-COM-Servers-in-NET) for providing the boilerplate code for creating a C# .NET COM server.
+- [juruen/rmapi](https://github.com/juruen/rmapi) for working out how the new cloud api works.
