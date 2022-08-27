@@ -186,11 +186,16 @@ namespace RemarkableSync.OnenoteAddin
             List<LanguageChoice> languages = new List<LanguageChoice>()
             {
                 new LanguageChoice() { Label = "Chinese", Value = "zh_CN"},
+                new LanguageChoice() { Label = "Danish", Value = "da_DK"},
                 new LanguageChoice() { Label = "English", Value = "en_US"},
+                new LanguageChoice() { Label = "Finish", Value = "fi_FI"},
                 new LanguageChoice() { Label = "French", Value = "fr_FR"},
                 new LanguageChoice() { Label = "German", Value = "de_DE"},
+                new LanguageChoice() { Label = "Italian", Value = "it_IT"},
                 new LanguageChoice() { Label = "Japanese", Value = "ja_JP"},
+                new LanguageChoice() { Label = "Norwegiean", Value = "no_NO"},
                 new LanguageChoice() { Label = "Spanish", Value = "es_ES"},
+                new LanguageChoice() { Label = "Swedish", Value = "sv_SE"},
             };
 
             string language = _configStore.GetConfig(_languageSettingName);
