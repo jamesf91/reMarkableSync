@@ -260,8 +260,12 @@ namespace RemarkableSync.OnenoteAddin
 
             try
             {
-                bool success = await ImportDocument(rmTreeNode, mode, zoom, language);
+                bool success = await ImportSelection(rmTreeNode, mode, zoom, language);
                 Logger.LogMessage("Import " + (success ? "successful" : "failed"));
+                if (success)
+                {
+                    Close();
+                }
             }
             catch (Exception err)
             {
@@ -273,7 +277,7 @@ namespace RemarkableSync.OnenoteAddin
         }
 
 
-        private async Task<bool> ImportDocument(RmTreeNode rmTreeNode, ImportMode mode, double zoom = 50.0, string language = "en_US")
+        private async Task<bool> ImportSelection(RmTreeNode rmTreeNode, ImportMode mode, double zoom = 50.0, string language = "en_US")
         {
             Logger.LogMessage($"Saving settings: zoom: {zoom}, language: {language}");
             Dictionary<string, string> configs = new Dictionary<string, string>();
@@ -285,21 +289,74 @@ namespace RemarkableSync.OnenoteAddin
 
             if (rmTreeNode.IsCollection)
             {
-                MessageBox.Show(this, "Only document can be imported");
-                return false;
+                // build up list of all documents under this folder
+                List<RmItem> items = new List<RmItem>();
+                GetDocumentRecursive(rmTreeNode, ref items);
+
+                DialogResult dialogResult = MessageBox.Show($"Import all {items.Count} documents under this folder?", "Import folder", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.No)
+                {
+                    return true;
+                }
+
+                // proceed with downloading all documents under folder
+                foreach (var item in items)
+                {
+                    if (_cancellationSource.Token.IsCancellationRequested)
+                    {
+                        Logger.LogMessage($"Aborting import of multiple documents as cancellation is requested");
+                        break;
+                    }
+                    if (!await ImportDocument(item, mode, zoom, language))
+                    {
+                        lblInfo.Text = $"Downloading \"{item.VissibleName}\"...  Failed.\n Import stopped";
+                    }
+                }
+
+                return true;
             }
+            else
+            {
+                RmItem item = new RmItem()
+                {
+                    Type = RmItem.DocumentType,
+                    ID = rmTreeNode.ID,
+                    VissibleName = rmTreeNode.VisibleName
+                };
 
-            RmItem item = new RmItem();
-            item.Type = RmItem.DocumentType;
-            item.ID = rmTreeNode.ID;
-            item.VissibleName = rmTreeNode.VisibleName;
+                return await ImportDocument(item, mode, zoom, language);
+            }
+        }
 
+        private void GetDocumentRecursive(RmTreeNode currNode, ref List<RmItem> items)
+        {
+            foreach (RmTreeNode childNode in currNode.Nodes)
+            {
+                if (childNode.IsCollection)
+                {
+                    GetDocumentRecursive(childNode, ref items);
+                }
+                else
+                {
+                    items.Add(new RmItem()
+                    {
+                        Type = RmItem.DocumentType,
+                        ID = childNode.ID,
+                        VissibleName = childNode.VisibleName
+                    });
+                }
+            }
+        }
+
+        private async Task<bool> ImportDocument(RmItem item, ImportMode mode, double zoom, string language)
+        {
+            Logger.LogMessage($"importing {item.VissibleName}, id: {item.ID}");
             List<RmPage> pages = new List<RmPage>();
 
-            lblInfo.Text = $"Downloading {rmTreeNode.VisibleName}...";
+            lblInfo.Text = $"Downloading \"{item.VissibleName}\"...";
 
             Progress<string> progress = new Progress<string>((string updateText) => {
-                lblInfo.Invoke((Action)(() => lblInfo.Text = $"Getting document list:\n{updateText}"));
+                lblInfo.Invoke((Action)(() => lblInfo.Text = $"Downloading \"{item.VissibleName}\"...\n{updateText}"));
             });
 
             using (RmDownloadedDoc doc = await _rmDataSource.DownloadDocument(item, _cancellationSource.Token, progress))
@@ -314,11 +371,11 @@ namespace RemarkableSync.OnenoteAddin
             switch (mode)
             {
                 case ImportMode.Text:
-                    return await ImportContentAsText(pages, rmTreeNode.VisibleName, language);
+                    return await ImportContentAsText(pages, item.VissibleName, language);
                 case ImportMode.Graphics:
-                    return ImportContentAsGraphics(pages, rmTreeNode.VisibleName, zoom);
+                    return ImportContentAsGraphics(pages, item.VissibleName, zoom);
                 case ImportMode.Both:
-                    return await ImportContentAsBoth(pages, rmTreeNode.VisibleName, zoom, language);
+                    return await ImportContentAsBoth(pages, item.VissibleName, zoom, language);
                 default:
                     Logger.LogMessage($"ImportDocument() - unknown import mode: {mode}");
                     break;
@@ -339,11 +396,11 @@ namespace RemarkableSync.OnenoteAddin
                 {
                     Thread.Sleep(500);
                 }).Wait();
-                Close();
             }
             else
             {
                 lblInfo.Text = "Digitising failed";
+                return false;
             }
             return true;
         }
@@ -382,7 +439,6 @@ namespace RemarkableSync.OnenoteAddin
             {
                 Thread.Sleep(500);
             }).Wait();
-            Close();
             return true;
         }
 
@@ -396,7 +452,7 @@ namespace RemarkableSync.OnenoteAddin
             {
                 Logger.LogMessage($"ImportContentAsBoth() - got {textResults.Count} text results and {graphicsResults.Count} graphics results");
                 lblInfo.Text = $"Imported {visibleName} as both text and graphics encountered error.";
-                return true;
+                return false;
             }
 
             List<Tuple<string, Bitmap>> result = new List<Tuple<string, Bitmap>>(textResults.Count);
