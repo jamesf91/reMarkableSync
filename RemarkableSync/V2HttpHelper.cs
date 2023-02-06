@@ -11,7 +11,7 @@ namespace RemarkableSync
 { 
     class V2HttpHelper
     {
-        private static string BlobHost = "https://rm-blob-storage-prod.appspot.com";
+        private static string BlobHost = "https://internal.cloud.remarkable.com";
         private static string DownloadUrl = BlobHost + "/api/v1/signed-urls/downloads";
         private static string HeaderGeneration = "x-goog-generation";
 

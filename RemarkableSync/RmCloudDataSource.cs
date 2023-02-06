@@ -21,8 +21,8 @@ namespace RemarkableSync
         private static string EmptyToken = "****";
         private static string UserAgent = "rmapi";
         private static string Device = "desktop-windows";
-        private static string DefaultDeviceTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/device/new";
-        private static string DefaultUserTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/user/new";
+        private static string DefaultDeviceTokenUrl = "https://webapp-prod.cloud.remarkable.engineering/token/json/2/device/new";
+        private static string DefaultUserTokenUrl = "https://webapp-prod.cloud.remarkable.engineering/token/json/2/user/new";
         private static string CustomDeviceTokenUrlName = "CustomDeviceTokenUrl";
         private static string CustomUserTokenUrlName = "CustomUserTokenUrl";
         
