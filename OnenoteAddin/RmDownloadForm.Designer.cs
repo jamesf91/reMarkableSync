@@ -122,7 +122,6 @@ namespace RemarkableSync.OnenoteAddin
             // 
             resources.ApplyResources(this.labelLanguage, "labelLanguage");
             this.labelLanguage.Name = "labelLanguage";
-            this.labelLanguage.Click += new System.EventHandler(this.labelLanguage_Click);
             // 
             // cboLanguage
             // 

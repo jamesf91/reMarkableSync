@@ -151,8 +151,10 @@ namespace RemarkableSync.OnenoteAddin
 		protected static int	m_iObjsInUse;  // Keeps a count on the total number of objects alive.
 		protected static int	m_iServerLocks;// Keeps a lock count on this application.
 
-		// This property returns the main thread's id.
-		public static uint MainThreadId
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        // This property returns the main thread's id.
+        public static uint MainThreadId
 		{
 			get
 			{
@@ -163,7 +165,7 @@ namespace RemarkableSync.OnenoteAddin
 		// This method performs a thread-safe incrementation of the objects count.
 		public static int InterlockedIncrementObjectsCount()
 		{
-			Logger.LogMessage("Called");
+			Logger.Debug("Called");
 			// Increment the global count of objects.
 			return Interlocked.Increment(ref m_iObjsInUse);
 		}
@@ -171,7 +173,7 @@ namespace RemarkableSync.OnenoteAddin
 		// This method performs a thread-safe decrementation the objects count.
 		public static int InterlockedDecrementObjectsCount()
 		{
-			Logger.LogMessage("Called");
+			Logger.Debug("Called");
 			// Decrement the global count of objects.
 			return Interlocked.Decrement(ref m_iObjsInUse);
 		}
@@ -192,7 +194,7 @@ namespace RemarkableSync.OnenoteAddin
 		// server lock count.
 		public static int InterlockedIncrementServerLockCount()
 		{
-			Logger.LogMessage("Called");
+			Logger.Debug("Called");
 			// Increment the global lock count of this server.
 			return Interlocked.Increment(ref m_iServerLocks);
 		}
@@ -201,7 +203,7 @@ namespace RemarkableSync.OnenoteAddin
 		// server lock count.
 		public static int InterlockedDecrementServerLockCount()
 		{
-			Logger.LogMessage("Called");
+			Logger.Debug("Called");
 			// Decrement the global lock count of this server.
 			return Interlocked.Decrement(ref m_iServerLocks);
 		}
@@ -228,7 +230,7 @@ namespace RemarkableSync.OnenoteAddin
 		{
 			lock(typeof(ManagedCOMLocalServer))
 			{
-				Logger.LogMessage("Called");
+				Logger.Debug("Called");
 
 				// Get the most up-to-date values of these critical data.
 				int iObjsInUse = ObjectsCount;
@@ -237,17 +239,17 @@ namespace RemarkableSync.OnenoteAddin
 				// Print out these info for debug purposes.
 				StringBuilder sb = new StringBuilder("");		  
 				sb.AppendFormat("m_iObjsInUse : {0}. m_iServerLocks : {1}", iObjsInUse, iServerLocks);
-				Logger.LogMessage(sb.ToString());
+				Logger.Debug(sb.ToString());
 
 				if ((iObjsInUse > 0) || (iServerLocks > 0))
 				{
-					Logger.LogMessage("There are still referenced objects or the server lock count is non-zero.");
+					Logger.Debug("There are still referenced objects or the server lock count is non-zero.");
 				}
 				else
 				{
 					UIntPtr wParam = new UIntPtr(0);
 					IntPtr lParam = new IntPtr(0);
-					Logger.LogMessage("PostThreadMessage(WM_QUIT)");
+					Logger.Debug("PostThreadMessage(WM_QUIT)");
 					PostThreadMessage(MainThreadId, 0x0012, wParam, lParam);
 				}
 			}
@@ -271,7 +273,7 @@ namespace RemarkableSync.OnenoteAddin
 				switch (args[0].ToLower())
 				{
 					case "-embedding":
-						Logger.LogMessage("Request to start as out-of-process COM server.");
+						Logger.Debug("Request to start as out-of-process COM server.");
 						break;
 
 					case "-register":
@@ -285,7 +287,7 @@ namespace RemarkableSync.OnenoteAddin
 						catch (Exception ex)
 						{
 							MessageBox.Show("Error while registering the server:\n"+ex.ToString());
-							Logger.LogMessage("Error while registering the server:\n" + ex.ToString());
+							Logger.Error("Error while registering the server:\n" + ex.ToString());
 						}
 						finally
 						{
@@ -319,7 +321,7 @@ namespace RemarkableSync.OnenoteAddin
 						break;
 
 					default:
-						Logger.LogMessage("Unknown argument: " + args[0] + "\nValid are : -register, -unregister and -embedding");
+						Logger.Info("Unknown argument: " + args[0] + "\nValid are : -register, -unregister and -embedding");
 						break;
 				}
 			}
@@ -368,18 +370,18 @@ namespace RemarkableSync.OnenoteAddin
 				TranslateMessage(ref msg);
 				DispatchMessage(ref msg);
 			}
-			Logger.LogMessage("Out of message loop.");
+			Logger.Debug("Out of message loop.");
 
 			// Revoke the class factory immediately.
 			// Don't wait until the thread has stopped before
 			// we perform revokation.
 			factory.RevokeClassObject();
-			Logger.LogMessage("SimpleCOMObjectClassFactory Revoked.");
+			Logger.Debug("SimpleCOMObjectClassFactory Revoked.");
 
 			// Now stop the Garbage Collector thread.
 			GarbageCollector.StopThread();
 			GarbageCollector.WaitForThreadToStop();
-			Logger.LogMessage("GarbageCollector thread stopped.");
+			Logger.Debug("GarbageCollector thread stopped.");
 		}
 	}
 }

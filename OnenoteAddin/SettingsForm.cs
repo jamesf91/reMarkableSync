@@ -1,10 +1,6 @@
-﻿using System;
+﻿using RemarkableSync.MyScript;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,6 +17,8 @@ namespace RemarkableSync.OnenoteAddin
         public static readonly string RmConnectionMethodConfig = "RmConnectionMethod";
 
         private IConfigStore _configStore;
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public SettingsForm(string settingsRegPath)
         {
@@ -159,7 +157,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private void setRmConnectionMethod(RmConnectionMethod connectionMethod)
         {
-            Logger.LogMessage($"Setting connection method to {connectionMethod.ToString()}");
+            Logger.Debug($"Setting connection method to {connectionMethod.ToString()}");
             Dictionary<string, string> mapConfigs = new Dictionary<string, string>();
             mapConfigs[RmConnectionMethodConfig] = connectionMethod.ToString("d");
             _configStore.SetConfigs(mapConfigs);
@@ -175,7 +173,7 @@ namespace RemarkableSync.OnenoteAddin
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to get RmConnectionMethod config with err: {err.Message}");
+                Logger.Error($"Failed to get RmConnectionMethod config with err: {err.Message}");
                 // will default to cloud
             }
 

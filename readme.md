@@ -1,5 +1,13 @@
 # reMarkable OneNote Addin
-This is an OneNote AddIn for importing digitized notes from the reMarkable tablet.
+This is a OneNote AddIn for importing digitized notes from the reMarkable tablet.
+
+## Beta version 4.0
+Updated the original version to support the new reMarkable file format.
+Decoding the new format was based on the work of [Rick Lupton](https://github.com/ricklupton/rmscene).
+
+* There is no support for the new text yet.
+* When text is added to a notebook, the layout of the generated images is not correct.
+
 
 ## New in Version 3
 Version 3 is a major version update that adds support for the new (2022) reMarkable cloud API.
@@ -53,3 +61,4 @@ I'd like to thanks for following people and/or sites for inspiration, informatio
 - [bsdz/remarkable-layers](https://github.com/bsdz/remarkable-layers) for the Python parser for the .line format used by reMarkable, which I ported to C# for this project.
 - [Lim Bio Liong at CodeProject](https://www.codeproject.com/Articles/12579/Building-COM-Servers-in-NET) for providing the boilerplate code for creating a C# .NET COM server.
 - [juruen/rmapi](https://github.com/juruen/rmapi) for working out how the new cloud api works.
+- [ricklupton/rmscene](https://github.com/ricklupton/rmscene) for decoding the new binary format.

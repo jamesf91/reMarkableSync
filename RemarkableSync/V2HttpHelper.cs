@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RemarkableSync
-{ 
+{
     class V2HttpHelper
     {
         private static string BlobHost = "https://internal.cloud.remarkable.com";
@@ -16,6 +14,8 @@ namespace RemarkableSync
         private static string HeaderGeneration = "x-goog-generation";
 
         private HttpClient _client;
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public V2HttpHelper(HttpClient client)
         {
@@ -42,14 +42,14 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to get url for hash: {hash}. err: {err.ToString()} ");
+                Logger.Error($"Failed to get url for hash: {hash}. err: {err.ToString()} ");
                 return "";
             }
         }
 
         public async Task<BlobStream> GetBlobStreamFromHashAsync(string hash)
         {
-            Logger.LogMessage($"Entering: ..  hash = {hash}");
+            Logger.Debug($"Entering: ..  hash = {hash}");
             try
             {
                 string url = await GetUrlAsync(hash);
@@ -80,14 +80,14 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to complete GET for hash: {hash}. err: {err.ToString()} ");
+                Logger.Error($"Failed to complete GET for hash: {hash}. err: {err.ToString()} ");
                 return null;
             }
         }
 
         public async Task<Stream> GetStreamFromHashAsync(string hash)
         {
-            Logger.LogMessage($"Entering: ..  hash = {hash}");
+            Logger.Debug($"Entering: ..  hash = {hash}");
             try
             {
                 string url = await GetUrlAsync(hash);
@@ -112,7 +112,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to complete GET for hash: {hash}. err: {err.ToString()} ");
+                Logger.Error($"Failed to complete GET for hash: {hash}. err: {err.ToString()} ");
                 return null;
             }
         }

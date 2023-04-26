@@ -8,34 +8,49 @@ using Renci.SshNet;
 
 namespace RemarkableSync
 {
-    public class RmSftpDownloadedDoc: RmDownloadedDoc
+    public class RmSftpDownloadedDoc: RmDocument
     {
-        public RmSftpDownloadedDoc(string basePath, string id, List<string> pageIDs, SftpClient client) : base (id)
+        public RmSftpDownloadedDoc(string basePath, string id, SftpClient client, String docContentJsonString) : base (id)
         {
             try
             {
-                _pageCount = pageIDs.Count;
+                LoadDocumentContent(docContentJsonString);
 
                 //create the temp content folder
-                Directory.CreateDirectory(GetPageContentFolderPath());
+                Directory.CreateDirectory(GetDocumentFolderPath());
 
                 string sourceContentFolder = $"{basePath}/{id}/";
 
-                for (int i = 0; i < _pageCount; ++i)
+                for (int i = 0; i < _content.pageCount; i++)
                 {
-                    var file = File.OpenWrite(GetPageContentFilePath(i));
-                    client.DownloadFile(sourceContentFolder + pageIDs[i]+ ".rm", file);
-                    file.Flush();
-                    file.Close();
-                    var metadataFile = File.OpenWrite(GetPageMetadataFilePath(i));
-                    client.DownloadFile(sourceContentFolder + pageIDs[i] + "-metadata.json", metadataFile);
-                    metadataFile.Flush();
-                    metadataFile.Close();
+                    string pageUuid = GetPageUUID(i);
+                    if(client.Exists(sourceContentFolder + pageUuid + ".rm"))
+                    {
+                        var file = File.OpenWrite(GetPageBinaryFilePath(i));
+                        client.DownloadFile(sourceContentFolder + pageUuid + ".rm", file);
+                        file.Flush();
+                        file.Close();
+                    }
+                    else
+                    {
+                        Logger.Debug($"Page binary {sourceContentFolder}{pageUuid}.rm not found, probably a blank page");
+                    }
+                    if (client.Exists(sourceContentFolder + pageUuid + "-metadata.json"))
+                    {
+                        var metadataFile = File.OpenWrite(GetPageMetadataFilePath(i));
+                        client.DownloadFile(sourceContentFolder + pageUuid + "-metadata.json", metadataFile);
+                        metadataFile.Flush();
+                        metadataFile.Close();
+                    }
+                    else
+                    {
+                        Logger.Debug($"Page metadata {sourceContentFolder}{pageUuid}-metadata.json not found");
+                    }
                 }
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"failed to download content to temp folder. Error: {err.Message}");
+                Logger.Error($"failed to download content to temp folder. Error: {err.Message}");
                 throw err;
             }
         }

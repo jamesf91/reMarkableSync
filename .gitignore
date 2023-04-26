@@ -12,3 +12,5 @@ packages/
 *.tlb
 *.msi
 *.vcxproj.user
+/backup
+/samplepages

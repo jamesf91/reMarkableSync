@@ -3,7 +3,6 @@
  */
 
 using System;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
