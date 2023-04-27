@@ -136,13 +136,13 @@
     <value>Microsoft Sans Serif, 12pt</value>
   </data>
   <data name="btnCancel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>246, 523</value>
+    <value>327, 642</value>
   </data>
   <data name="btnCancel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>10, 5, 10, 5</value>
+    <value>13, 6, 13, 6</value>
   </data>
   <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>216, 33</value>
+    <value>289, 42</value>
   </data>
   <data name="btnCancel.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -172,13 +172,13 @@
     <value>Microsoft Sans Serif, 11.25pt</value>
   </data>
   <data name="lblInfo.Location" type="System.Drawing.Point, System.Drawing">
-    <value>10, 331</value>
+    <value>13, 406</value>
   </data>
   <data name="lblInfo.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>10, 10, 10, 10</value>
+    <value>13, 12, 13, 12</value>
   </data>
   <data name="lblInfo.Size" type="System.Drawing.Size, System.Drawing">
-    <value>452, 59</value>
+    <value>603, 73</value>
   </data>
   <data name="lblInfo.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -208,13 +208,13 @@
     <value>Microsoft Sans Serif, 12pt</value>
   </data>
   <data name="btnOk.Location" type="System.Drawing.Point, System.Drawing">
-    <value>10, 523</value>
+    <value>13, 642</value>
   </data>
   <data name="btnOk.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>10, 5, 10, 5</value>
+    <value>13, 6, 13, 6</value>
   </data>
   <data name="btnOk.Size" type="System.Drawing.Size, System.Drawing">
-    <value>216, 33</value>
+    <value>288, 42</value>
   </data>
   <data name="btnOk.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -241,13 +241,13 @@
     <value>Microsoft Sans Serif, 11.25pt</value>
   </data>
   <data name="rmTreeView.Location" type="System.Drawing.Point, System.Drawing">
-    <value>10, 10</value>
+    <value>13, 12</value>
   </data>
   <data name="rmTreeView.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>10, 10, 10, 10</value>
+    <value>13, 12, 13, 12</value>
   </data>
   <data name="rmTreeView.Size" type="System.Drawing.Size, System.Drawing">
-    <value>452, 301</value>
+    <value>603, 370</value>
   </data>
   <data name="rmTreeView.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -277,13 +277,13 @@
     <value>Microsoft Sans Serif, 9.75pt</value>
   </data>
   <data name="lblGraphicWidth.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 5</value>
+    <value>4, 6</value>
   </data>
   <data name="lblGraphicWidth.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 5, 3, 0</value>
+    <value>4, 6, 4, 0</value>
   </data>
   <data name="lblGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 30</value>
+    <value>134, 37</value>
   </data>
   <data name="lblGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -310,13 +310,13 @@
     <value>Fill</value>
   </data>
   <data name="numericGraphicWidth.Location" type="System.Drawing.Point, System.Drawing">
-    <value>112, 5</value>
+    <value>146, 6</value>
   </data>
   <data name="numericGraphicWidth.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 5, 3, 3</value>
+    <value>4, 6, 4, 4</value>
   </data>
   <data name="numericGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>71, 20</value>
+    <value>92, 22</value>
   </data>
   <data name="numericGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -343,13 +343,13 @@
     <value>Microsoft Sans Serif, 9.75pt</value>
   </data>
   <data name="lblGraphicWidthUnit.Location" type="System.Drawing.Point, System.Drawing">
-    <value>189, 5</value>
+    <value>246, 6</value>
   </data>
   <data name="lblGraphicWidthUnit.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 5, 3, 0</value>
+    <value>4, 6, 4, 0</value>
   </data>
   <data name="lblGraphicWidthUnit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>38, 30</value>
+    <value>57, 37</value>
   </data>
   <data name="lblGraphicWidthUnit.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -379,13 +379,13 @@
     <value>Microsoft Sans Serif, 9.75pt</value>
   </data>
   <data name="labelLanguage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 40</value>
+    <value>4, 49</value>
   </data>
   <data name="labelLanguage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 5, 3, 3</value>
+    <value>4, 6, 4, 4</value>
   </data>
   <data name="labelLanguage.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 27</value>
+    <value>134, 33</value>
   </data>
   <data name="labelLanguage.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -409,13 +409,13 @@
     <value>3</value>
   </data>
   <data name="cboLanguage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>112, 40</value>
+    <value>146, 49</value>
   </data>
   <data name="cboLanguage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 5, 3, 3</value>
+    <value>4, 6, 4, 4</value>
   </data>
   <data name="cboLanguage.Size" type="System.Drawing.Size, System.Drawing">
-    <value>114, 21</value>
+    <value>151, 24</value>
   </data>
   <data name="cboLanguage.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -436,16 +436,16 @@
     <value>Fill</value>
   </data>
   <data name="tableLayoutGraphicWidth.Location" type="System.Drawing.Point, System.Drawing">
-    <value>239, 415</value>
+    <value>318, 509</value>
   </data>
   <data name="tableLayoutGraphicWidth.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 15, 3, 3</value>
+    <value>4, 18, 4, 4</value>
   </data>
   <data name="tableLayoutGraphicWidth.RowCount" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
   <data name="tableLayoutGraphicWidth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>230, 100</value>
+    <value>307, 123</value>
   </data>
   <data name="tableLayoutGraphicWidth.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -463,7 +463,7 @@
     <value>4</value>
   </data>
   <data name="tableLayoutGraphicWidth.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
-    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="lblGraphicWidth" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="numericGraphicWidth" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblGraphicWidthUnit" Row="0" RowSpan="1" Column="2" ColumnSpan="1" /&gt;&lt;Control Name="labelLanguage" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="cboLanguage" Row="1" RowSpan="1" Column="1" ColumnSpan="2" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,58.64197,Percent,41.35803,Absolute,43" /&gt;&lt;Rows Styles="Absolute,35,Absolute,35,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="lblGraphicWidth" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="numericGraphicWidth" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblGraphicWidthUnit" Row="0" RowSpan="1" Column="2" ColumnSpan="1" /&gt;&lt;Control Name="labelLanguage" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="cboLanguage" Row="1" RowSpan="1" Column="1" ColumnSpan="2" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,58,64197,Percent,41,35803,Absolute,64" /&gt;&lt;Rows Styles="Absolute,43,Absolute,43,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <data name="radioBtnImportBoth.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -472,10 +472,13 @@
     <value>NoControl</value>
   </data>
   <data name="radioBtnImportBoth.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 63</value>
+    <value>9, 78</value>
+  </data>
+  <data name="radioBtnImportBoth.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="radioBtnImportBoth.Size" type="System.Drawing.Size, System.Drawing">
-    <value>53, 20</value>
+    <value>52, 20</value>
   </data>
   <data name="radioBtnImportBoth.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -502,10 +505,13 @@
     <value>NoControl</value>
   </data>
   <data name="radioBtnImportGraphics.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 42</value>
+    <value>9, 52</value>
+  </data>
+  <data name="radioBtnImportGraphics.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="radioBtnImportGraphics.Size" type="System.Drawing.Size, System.Drawing">
-    <value>80, 20</value>
+    <value>79, 20</value>
   </data>
   <data name="radioBtnImportGraphics.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -529,10 +535,13 @@
     <value>True</value>
   </data>
   <data name="radioBtnImportText.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 21</value>
+    <value>9, 26</value>
+  </data>
+  <data name="radioBtnImportText.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="radioBtnImportText.Size" type="System.Drawing.Size, System.Drawing">
-    <value>52, 20</value>
+    <value>51, 20</value>
   </data>
   <data name="radioBtnImportText.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -559,10 +568,16 @@
     <value>Microsoft Sans Serif, 9.75pt</value>
   </data>
   <data name="groupBoxImportOptions.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 403</value>
+    <value>4, 495</value>
+  </data>
+  <data name="groupBoxImportOptions.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
+  </data>
+  <data name="groupBoxImportOptions.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="groupBoxImportOptions.Size" type="System.Drawing.Size, System.Drawing">
-    <value>230, 112</value>
+    <value>306, 137</value>
   </data>
   <data name="groupBoxImportOptions.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
@@ -588,11 +603,14 @@
   <data name="tableLayoutPanel.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="tableLayoutPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
+  </data>
   <data name="tableLayoutPanel.RowCount" type="System.Int32, mscorlib">
     <value>4</value>
   </data>
   <data name="tableLayoutPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>472, 561</value>
+    <value>629, 690</value>
   </data>
   <data name="tableLayoutPanel.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -610,16 +628,16 @@
     <value>0</value>
   </data>
   <data name="tableLayoutPanel.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
-    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="btnCancel" Row="3" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblInfo" Row="1" RowSpan="1" Column="0" ColumnSpan="2" /&gt;&lt;Control Name="btnOk" Row="3" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="rmTreeView" Row="0" RowSpan="1" Column="0" ColumnSpan="2" /&gt;&lt;Control Name="tableLayoutGraphicWidth" Row="2" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="groupBoxImportOptions" Row="2" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,50,Percent,50" /&gt;&lt;Rows Styles="Percent,61.87515,Percent,15.34655,Percent,22.7783,Absolute,42" /&gt;&lt;/TableLayoutSettings&gt;</value>
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="btnCancel" Row="3" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="lblInfo" Row="1" RowSpan="1" Column="0" ColumnSpan="2" /&gt;&lt;Control Name="btnOk" Row="3" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="rmTreeView" Row="0" RowSpan="1" Column="0" ColumnSpan="2" /&gt;&lt;Control Name="tableLayoutGraphicWidth" Row="2" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;Control Name="groupBoxImportOptions" Row="2" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,50,Percent,50" /&gt;&lt;Rows Styles="Percent,61,87515,Percent,15,34655,Percent,22,7783,Absolute,52" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>6, 13</value>
+    <value>8, 16</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>472, 561</value>
+    <value>629, 690</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -907,6 +925,9 @@
         /B//g//////8H/+D//////wf/4AAAAAAAB//gAAAAAAAH/+AAAAAAAAf/4AAAAAAAB//gAAAAAAAH///
         //////////////////////////////////////////////////8=
 </value>
+  </data>
+  <data name="$this.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Download from reMarkable</value>

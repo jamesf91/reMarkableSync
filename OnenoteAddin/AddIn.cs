@@ -24,7 +24,9 @@ namespace RemarkableSync.OnenoteAddin
 		[DllImport("USER32.DLL")]
 		private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-		protected Application OneNoteApplication
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        protected Application OneNoteApplication
 		{ get; set; }
 
 		private const string _settingsRegPath = @"Software\Microsoft\Office\OneNote\AddInsData\RemarkableSync.OnenoteAddin";
@@ -73,7 +75,7 @@ namespace RemarkableSync.OnenoteAddin
 		/// <returns></returns>
 		public string GetCustomUI(string RibbonID)
 		{
-			Logger.LogMessage("called");
+			Logger.Debug("called");
 			return Properties.Resources.ribbon;
 		}
 
@@ -237,7 +239,7 @@ namespace RemarkableSync.OnenoteAddin
 			}
 			catch (Exception err)
 			{
-				Logger.LogMessage($"Unable to get \"{_settingsRegPath}\" regkey. Error: {err.Message}");
+				Logger.Error($"Unable to get \"{_settingsRegPath}\" regkey. Error: {err.Message}");
 				return;
 			}
 
@@ -256,10 +258,11 @@ namespace RemarkableSync.OnenoteAddin
 
 	class AddInClassFactory : ClassFactoryBase
 	{
-		public override void virtual_CreateInstance(IntPtr pUnkOuter, ref Guid riid, out IntPtr ppvObject)
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        public override void virtual_CreateInstance(IntPtr pUnkOuter, ref Guid riid, out IntPtr ppvObject)
 		{
-			Logger.LogMessage("AddInClassFactory.CreateInstance().");
-			Logger.LogMessage("Requesting Interface : " + riid.ToString());
+			Logger.Debug("AddInClassFactory.CreateInstance().");
+			Logger.Debug("Requesting Interface : " + riid.ToString());
 
 			if (riid == Marshal.GenerateGuidForType(typeof(IDTExtensibility2)) ||
 				riid == ManagedCOMLocalServer.IID_IDispatch ||

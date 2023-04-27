@@ -1,4 +1,4 @@
-﻿namespace RemarkableSync
+﻿namespace RemarkableSync.MyScript
 {
     public class MyScriptResult
     {

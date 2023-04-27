@@ -9,6 +9,7 @@ namespace RemarkableSync
 {
     public class WinRegistryConfigStore : IConfigStore
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private string _regKeyPath;
         private bool _encrypt;
 
@@ -28,13 +29,13 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to access registry for config \"{configName}\". Error: {err.Message}");
+                Logger.Error($"Failed to access registry for config \"{configName}\". Error: {err.Message}");
                 return null;
             }
 
             if (regValue == null)
             {
-                Logger.LogMessage($"Getting value from registry for config \"{configName}\" failed");
+                Logger.Error($"Getting value from registry for config \"{configName}\" failed");
                 return null;
             }
 
@@ -51,7 +52,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to get config \"{configName}\". Error: {err.Message}");
+                Logger.Error($"Failed to get config \"{configName}\". Error: {err.Message}");
                 return null;
             }           
         }
@@ -72,7 +73,7 @@ namespace RemarkableSync
                 }
                 catch (Exception err)
                 {
-                    Logger.LogMessage($"Failed to encrypt all configs. Error: {err.Message}");
+                    Logger.Error($"Failed to encrypt all configs. Error: {err.Message}");
                     return false;
                 }
             }
@@ -93,7 +94,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to write to registry. Error: {err.Message}");
+                Logger.Error($"Failed to write to registry. Error: {err.Message}");
                 return false;
             }
 
@@ -113,7 +114,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage("Encrypt failed with err: " + err.Message);
+                Logger.Error("Encrypt failed with err: " + err.Message);
                 throw err;
             }
         }
@@ -126,7 +127,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage("Encrypt failed with err: " + err.Message);
+                Logger.Error("Encrypt failed with err: " + err.Message);
                 throw err;
             }
         }

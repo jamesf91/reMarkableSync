@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RemarkableSync.document;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
@@ -20,19 +23,30 @@ namespace RemarkableSync
 
         private SftpClient _client;
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public RmSftpDataSource(IConfigStore configStore)
         {
             string host = configStore.GetConfig(SshHostConfig);
             string password = configStore.GetConfig(SshPasswordConfig);
 
-            host = host ?? "10.11.99.1";
             if (password == null)
             {
                 string errMsg = "Unable to get SSH password from config store";
-                Logger.LogMessage($"{errMsg}");
+                Logger.Error($"{errMsg}");
                 throw new Exception(errMsg);
             }
 
+            ConnectToRm(host, password);
+        }
+
+        public RmSftpDataSource(string host, string password)
+        {
+            ConnectToRm(host, password);
+        }
+
+        private void ConnectToRm(string host, string password)
+        {
             const string username = "root";
             const int port = 22;
 
@@ -43,12 +57,12 @@ namespace RemarkableSync
             }
             catch (SshAuthenticationException err)
             {
-                Logger.LogMessage($"authentication error on SFTP connection: err: {err.Message}");
+                Logger.Error($"authentication error on SFTP connection: err: {err.Message}");
                 throw new Exception("reMarkable device SSH login failed");
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"error on SFTP connection: err: {err.Message}");
+                Logger.Error($"error on SFTP connection: err: {err.Message}");
                 throw new Exception("Failed to connect to reMarkable device via SSH");
             }
         }
@@ -59,20 +73,15 @@ namespace RemarkableSync
             return getChildItemsRecursive("", ref collection);
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
+        public async Task<RmDocument> DownloadDocument(string ID, CancellationToken cancellationToken, IProgress<string> progress)
         {
             return await Task.Run(() =>
             {
                 // get the .content file for the notebook first
-                string contentFileFullPath = $"{ContentFolderPath}/{item.ID}.content";
-                MemoryStream stream = new MemoryStream();
-                _client.DownloadFile(contentFileFullPath, stream);
-                NotebookContent notebookContent = NotebookContent.FromStream(stream);
-                List<string> pageIDs = notebookContent.pages.ToList();
-                Logger.LogMessage($"Notebook \"{item.VissibleName}\" has {pageIDs.Count} pages");
-                progress.Report($"Loading {pageIDs.Count} pages from device");
+                string contentFileFullPath = $"{ContentFolderPath}/{ID}.content";
+                string content = _client.ReadAllText(contentFileFullPath);
+                RmSftpDownloadedDoc downloadedDoc = new RmSftpDownloadedDoc(ContentFolderPath, ID, _client, content);            
 
-                RmSftpDownloadedDoc downloadedDoc = new RmSftpDownloadedDoc(ContentFolderPath, item.ID, pageIDs, _client);
                 return downloadedDoc;
             });
         }

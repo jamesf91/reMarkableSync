@@ -8,7 +8,8 @@ namespace RemarkableSync.OnenoteAddin
 	/// </summary>
 	class GarbageCollection
 	{
-		protected bool				m_bContinueThread;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        protected bool				m_bContinueThread;
 		protected bool				m_GCWatchStopped;
 		protected int				m_iInterval;
 		protected ManualResetEvent	m_EventThreadEnded;
@@ -23,7 +24,7 @@ namespace RemarkableSync.OnenoteAddin
 
 		public void GCWatch()
 		{
-			Logger.LogMessage("GarbageCollection.GCWatch() is now running on another thread.");
+			Logger.Debug("GarbageCollection.GCWatch() is now running on another thread.");
 			// Pause for a moment to provide a delay to make threads more apparent.
 			while (ContinueThread())
 			{
@@ -31,7 +32,7 @@ namespace RemarkableSync.OnenoteAddin
 				Thread.Sleep(m_iInterval);
 			}
 
-			Logger.LogMessage("Goind to call m_EventThreadEnded.Set().");
+			Logger.Debug("Goind to call m_EventThreadEnded.Set().");
 			m_EventThreadEnded.Set();
 		}
 
@@ -47,17 +48,17 @@ namespace RemarkableSync.OnenoteAddin
 		{
 			lock(this)
 			{
-				Logger.LogMessage("Stopping thread.");
+				Logger.Debug("Stopping thread.");
 				m_bContinueThread = false;
 			}
 		}
 
 		public void WaitForThreadToStop()
 		{
-			Logger.LogMessage("Called");
+			Logger.Debug("Called");
 			m_EventThreadEnded.WaitOne();
 			m_EventThreadEnded.Reset();
-			Logger.LogMessage("Exiting.");
+			Logger.Debug("Exiting.");
 		}
 	}
 }

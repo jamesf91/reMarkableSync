@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.OneNote;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.Office.Interop.OneNote;
 
 namespace RemarkableSync.OnenoteAddin
 {
@@ -31,6 +30,7 @@ namespace RemarkableSync.OnenoteAddin
 
         private Application _application;
         private XNamespace _ns;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public OneNoteHelper(Application application)
         {
@@ -45,8 +45,8 @@ namespace RemarkableSync.OnenoteAddin
 
             XDocument hierachyDocument = XDocument.Parse(xmlHierarchy);
             var currentNoteBooks = from notebookNode in hierachyDocument.Descendants(_ns + "Notebook")
-                                 where notebookNode.Attribute("isCurrentlyViewed")?.Value == "true"
-                                 select notebookNode;
+                                   where notebookNode.Attribute("isCurrentlyViewed")?.Value == "true"
+                                   select notebookNode;
 
             if (currentNoteBooks.Count() > 0)
             {
@@ -54,7 +54,7 @@ namespace RemarkableSync.OnenoteAddin
             }
             else
             {
-                Logger.LogMessage("No notebook found as current");
+                Logger.Debug("No notebook found as current");
                 return null;
             }
         }
@@ -62,7 +62,7 @@ namespace RemarkableSync.OnenoteAddin
         public string GetCurrentSectionId()
         {
             string currentNoteBookId = GetCurrentNotebookId();
-            if(currentNoteBookId == null)
+            if (currentNoteBookId == null)
             {
                 return null;
             }
@@ -81,7 +81,7 @@ namespace RemarkableSync.OnenoteAddin
             }
             else
             {
-                Logger.LogMessage("No section found as current");
+                Logger.Debug("No section found as current");
                 return null;
             }
         }
@@ -114,7 +114,7 @@ namespace RemarkableSync.OnenoteAddin
             XElement newOutline = new XElement(ns + "Outline");
             XElement oeChildren = new XElement(ns + "OEChildren");
 
-            foreach(string contentLine in contentLines)
+            foreach (string contentLine in contentLines)
             {
                 XElement oe = new XElement(ns + "OE");
                 XElement t = new XElement(ns + "T");
@@ -135,10 +135,10 @@ namespace RemarkableSync.OnenoteAddin
             string xml;
             _application.GetPageContent(pageId, out xml, PageInfo.piAll, XMLSchema.xs2013);
             var pageDoc = XDocument.Parse(xml);
-            
+
             int yPos = GetBottomContentYPos(pageDoc);
 
-            foreach(var image in images)
+            foreach (var image in images)
             {
                 yPos = AppendImage(pageDoc, image, zoom, yPos) + ImageGap;
             }
@@ -154,18 +154,18 @@ namespace RemarkableSync.OnenoteAddin
 
             int yPos = GetBottomContentYPos(pageDoc);
             AppendImage(pageDoc, image, zoom, yPos);
-            
+
             _application.UpdatePageContent(pageDoc.ToString(), DateTime.MinValue, XMLSchema.xs2013);
         }
 
         private int AppendImage(XDocument pageDoc, Bitmap bitmap, double zoom, int yPos)
         {
-            int height = (int) Math.Round(bitmap.Height * zoom);
+            int height = (int)Math.Round(bitmap.Height * zoom);
             int width = (int)Math.Round(bitmap.Width * zoom);
 
             var ns = pageDoc.Root.Name.Namespace;
             XElement imageEl = new XElement(ns + "Image");
-            
+
             XElement positionEl = new XElement(ns + "Position");
             positionEl.Add(new XAttribute("x", PageXOffset));
             positionEl.Add(new XAttribute("y", yPos));
@@ -201,7 +201,7 @@ namespace RemarkableSync.OnenoteAddin
             var ns = pageDoc.Root.Name.Namespace;
             int lowestYPos = PageYOffset;
 
-            foreach(var child in pageDoc.Root.Elements())
+            foreach (var child in pageDoc.Root.Elements())
             {
                 var posEl = child.Element(ns + PositionElementName);
                 var sizeEl = child.Element(ns + SizeElementName);
@@ -217,19 +217,19 @@ namespace RemarkableSync.OnenoteAddin
                     string yAttribValue = posEl.Attribute("y")?.Value;
                     if (yAttribValue != null)
                     {
-                        yPos = (int)double.Parse(yAttribValue);
+                        yPos = (int)double.Parse(yAttribValue, CultureInfo.InvariantCulture);
                     }
                     string heightAttribValue = sizeEl.Attribute("height")?.Value;
                     if (heightAttribValue != null)
                     {
-                        height = (int)double.Parse(heightAttribValue);
+                        height = (int)double.Parse(heightAttribValue, CultureInfo.InvariantCulture);
                     }
 
                     lowestYPos = Math.Max(lowestYPos, (yPos + height));
                 }
                 catch (Exception err)
                 {
-                    Logger.LogMessage($"error: {err.Message}");
+                    Logger.Error($"error: {err.Message}");
                     continue;
                 }
             }

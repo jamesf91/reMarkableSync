@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RemarkableSync.document;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -18,6 +19,8 @@ namespace RemarkableSync
         private HttpClient _client;
         private string _baseUrl;
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public CloudApiV1Client(HttpClient client, IConfigStore hiddenConfigStore = null)
         {
             _client = client;
@@ -25,43 +28,36 @@ namespace RemarkableSync
         }
 
         public void Dispose()
-        { 
+        {
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
+        public async Task<RmDocument> DownloadDocument(string ID, CancellationToken cancellationToken, IProgress<string> progress)
         {
-            if (item.Type != RmItem.DocumentType)
-            {
-                Logger.LogMessage($"item with id {item.ID} is not document type");
-                return null;
-
-            }
-
             try
             {
                 // first get the blob url
-                string url = $"/document-storage/json/2/docs?doc={WebUtility.UrlEncode(item.ID)}&withBlob=true";
+                string url = $"/document-storage/json/2/docs?doc={WebUtility.UrlEncode(ID)}&withBlob=true";
                 HttpResponseMessage response = await Request(HttpMethod.Get, url, null, null);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Logger.LogMessage("request failed with status code " + response.StatusCode.ToString());
+                    Logger.Error("request failed with status code " + response.StatusCode.ToString());
                     return null;
                 }
                 List<RmItem> items = JsonSerializer.Deserialize<List<RmItem>>(response.Content.ReadAsStringAsync().Result);
                 if (items.Count == 0)
                 {
-                    Logger.LogMessage("Failed to find document with id: " + item.ID);
+                    Logger.Error("Failed to find document with id: " + ID);
                     return null;
                 }
                 string blobUrl = items[0].BlobURLGet;
                 Stream stream = await _client.GetStreamAsync(blobUrl);
                 ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read);
 
-                return new RmCloudV1DownloadedDoc(archive, item.ID);
+                return new RmCloudV1DownloadedDoc(archive, ID);
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"failed for id {item.ID}. Error: {err.Message}");
+                Logger.Error($"failed for id {ID}. Error: {err.Message}");
                 return null;
             }
         }
@@ -79,7 +75,7 @@ namespace RemarkableSync
             if (!response.IsSuccessStatusCode)
             {
                 string errMsg = "GetAllItems request failed with status code " + response.StatusCode.ToString();
-                Logger.LogMessage($"Request failed with status code: {response.StatusCode.ToString()} and content: {responseContent}");
+                Logger.Error($"Request failed with status code: {response.StatusCode.ToString()} and content: {responseContent}");
                 throw new Exception(errMsg);
             }
 
@@ -96,7 +92,7 @@ namespace RemarkableSync
                 url = _baseUrl + url;
             }
 
-            Logger.LogMessage($"url is: {url}");
+            Logger.Debug($"url is: {url}");
             var request = new HttpRequestMessage();
             request.RequestUri = new Uri(url);
             request.Method = method;

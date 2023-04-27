@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Text;
-using System.Threading.Tasks;
-using RemarkableSync.RmLine;
+using System.Linq;
 
-
-namespace RemarkableSync
+namespace RemarkableSync.document.v5
 {
     public class RmLinesDrawer
     {
         static public List<Bitmap> DrawPages(List<RmPage> pages)
         {
             List<Bitmap> images = (from page in pages
-                                  select DrawPage(page)).ToList();
+                                   select DrawPage(page)).ToList();
             return images;
         }
 
@@ -25,6 +20,7 @@ namespace RemarkableSync
 
             Graphics graphics = Graphics.FromImage(image);
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.Clear(Color.White);
 
             foreach (RmLayer layer in page.Objects)
             {
@@ -40,37 +36,36 @@ namespace RemarkableSync
             {
                 if (stroke.IsVisible())
                 {
-                    DrawStroke(stroke, ref graphics, layer.LayerColor);
+                    DrawStroke(stroke, ref graphics);
                 }
             }
         }
 
-        static private void DrawStroke(RmStroke stroke, ref Graphics graphics, Color? color = null)
+        static private void DrawStroke(RmStroke stroke, ref Graphics graphics)
         {
-            if (color == null)
+            Color color;
+
+            switch (stroke.Colour)
             {
-                switch (stroke.Colour)
-                {
-                    case ColourEnum.GREY:
-                        color = Color.Gray;
-                        break;
-                    case ColourEnum.WHITE:
-                        color = Color.White;
-                        break;
-                    case ColourEnum.BLACK:
-                    default:
-                        color = Color.Black;
-                        break;
-                }
+                case RmPenColor.GREY:
+                    color = Color.Gray;
+                    break;
+                case RmPenColor.WHITE:
+                    color = Color.White;
+                    break;
+                case RmPenColor.BLACK:
+                default:
+                    color = Color.Black;
+                    break;
             }
 
-            Pen pen = new Pen(color.GetValueOrDefault(Color.Black), stroke.Width);
+            Pen pen = new Pen(color, stroke.Width);
 
             GraphicsPath path = new GraphicsPath();
             Point[] points = new Point[stroke.Objects.Count];
             for (int i = 0; i < stroke.Objects.Count; ++i)
             {
-                RmSegment segment = (RmSegment) stroke.Objects[i];
+                RmSegment segment = (RmSegment)stroke.Objects[i];
                 points[i] = new Point((int)segment.X, (int)segment.Y);
             }
             path.AddLines(points);

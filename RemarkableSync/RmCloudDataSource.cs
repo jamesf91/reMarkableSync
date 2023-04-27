@@ -1,15 +1,13 @@
-﻿using System;
+﻿using RemarkableSync.document;
+using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Drawing;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
-using System.Net;
-using System.IO.Compression;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading;
+using System.Threading.Tasks;
 
 // TODO: Exception handling
 namespace RemarkableSync
@@ -21,11 +19,11 @@ namespace RemarkableSync
         private static string EmptyToken = "****";
         private static string UserAgent = "rmapi";
         private static string Device = "desktop-windows";
-        private static string DefaultDeviceTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/device/new";
-        private static string DefaultUserTokenUrl = "https://webapp-production-dot-remarkable-production.appspot.com/token/json/2/user/new";
+        private static string DefaultDeviceTokenUrl = "https://webapp-prod.cloud.remarkable.engineering/token/json/2/device/new";
+        private static string DefaultUserTokenUrl = "https://webapp-prod.cloud.remarkable.engineering/token/json/2/user/new";
         private static string CustomDeviceTokenUrlName = "CustomDeviceTokenUrl";
         private static string CustomUserTokenUrlName = "CustomUserTokenUrl";
-        
+
 
         private string _deviceTokenUrl;
         private string _userTokenUrl;
@@ -37,6 +35,8 @@ namespace RemarkableSync
         private IConfigStore _configStore;
         private IConfigStore _hiddenConfigStore;
         private ICloudApiClient _apiClient;
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public RmCloudDataSource(IConfigStore configStore, IConfigStore hiddenConfigStore = null)
         {
@@ -53,7 +53,7 @@ namespace RemarkableSync
             // check for hidden configs
             _deviceTokenUrl = hiddenConfigStore?.GetConfig(CustomDeviceTokenUrlName) ?? DefaultDeviceTokenUrl;
             _userTokenUrl = hiddenConfigStore?.GetConfig(CustomUserTokenUrlName) ?? DefaultUserTokenUrl;
-            
+
         }
 
         public async Task<bool> RegisterWithOneTimeCode(string oneTimeCode)
@@ -67,7 +67,7 @@ namespace RemarkableSync
 
             try
             {
-                Logger.LogMessage($"registring with code: {oneTimeCode}");
+                Logger.Debug($"registring with code: {oneTimeCode}");
                 HttpResponseMessage response = await Request(
                     HttpMethod.Post,
                     _deviceTokenUrl,
@@ -83,12 +83,12 @@ namespace RemarkableSync
                 }
                 else
                 {
-                    Logger.LogMessage($"response code: {response.StatusCode}");
+                    Logger.Debug($"response code: {response.StatusCode}");
                 }
             }
             catch (Exception err)
             {
-                Logger.LogMessage("Error: " + err.Message);
+                Logger.Error("Error: " + err.Message);
             }
             return false;
         }
@@ -108,15 +108,15 @@ namespace RemarkableSync
 
             if (_apiClient == null)
             {
-                string errMsg = "Enable to create cloud API client." ;
-                Logger.LogMessage(errMsg);
+                string errMsg = "Enable to create cloud API client.";
+                Logger.Error(errMsg);
                 throw new Exception(errMsg);
             }
 
             return await _apiClient.GetAllItems(cancellationToken, progress);
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
+        public async Task<RmDocument> DownloadDocument(string ID, CancellationToken cancellationToken, IProgress<string> progress)
         {
             if (!_initialized)
             {
@@ -126,11 +126,11 @@ namespace RemarkableSync
             if (_apiClient == null)
             {
                 string errMsg = "Enable to create cloud API client.";
-                Logger.LogMessage(errMsg);
+                Logger.Error(errMsg);
                 throw new Exception(errMsg);
             }
 
-            return await _apiClient.DownloadDocument(item, cancellationToken, progress);
+            return await _apiClient.DownloadDocument(ID, cancellationToken, progress);
         }
 
         public void Dispose()
@@ -146,7 +146,7 @@ namespace RemarkableSync
             LoadConfig();
             if (_devicetoken != null)
             {
-                Logger.LogMessage("device token loaded from config file");
+                Logger.Debug("device token loaded from config file");
                 _initialized = await RenewToken();
             }
             return _initialized;
@@ -170,7 +170,7 @@ namespace RemarkableSync
 
         private async Task<HttpResponseMessage> Request(HttpMethod method, string url, Dictionary<string, string> header, HttpContent content)
         {
-            Logger.LogMessage($"url is: {url}");
+            Logger.Debug($"url is: {url}");
             var request = new HttpRequestMessage();
             request.RequestUri = new Uri(url);
             request.Method = method;
@@ -210,20 +210,20 @@ namespace RemarkableSync
                 _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_usertoken}");
                 WriteConfig();
                 InitializeApiClient();
-                Logger.LogMessage("user token renewed");
+                Logger.Debug("user token renewed");
                 return true;
             }
             else
             {
-                Logger.LogMessage($"Renew session token failed with response code {response.StatusCode}");
+                Logger.Debug($"Renew session token failed with response code {response.StatusCode}");
                 throw new Exception("Can't renew sesion token");
             }
         }
 
         private List<RmItem> getChildItemsRecursive(string parentId, ref List<RmItem> items)
         {
-            var children = (from item in items where item.Parent == parentId select item).ToList(); 
-            foreach(var child in children)
+            var children = (from item in items where item.Parent == parentId select item).ToList();
+            foreach (var child in children)
             {
                 child.Children = getChildItemsRecursive(child.ID, ref items);
             }
@@ -246,18 +246,18 @@ namespace RemarkableSync
                 var v2ScopeFieldCount = scopeFields.Where(field => (field == "sync:fox" || field == "sync:tortoise" || field == "sync:hare")).ToList().Count;
                 if (v2ScopeFieldCount == 0)
                 {
-                    Logger.LogMessage("Creating V1 api client");
+                    Logger.Debug("Creating V1 api client");
                     _apiClient = new CloudApiV1Client(_client, _hiddenConfigStore);
                 }
                 else
                 {
-                    Logger.LogMessage("Creating V2 api client");
+                    Logger.Debug("Creating V2 api client");
                     _apiClient = new CloudApiV2Client(_client);
                 }
             }
             catch (Exception)
             {
-                Logger.LogMessage($"Unable to determine api version from user token");
+                Logger.Debug($"Unable to determine api version from user token");
                 throw new Exception("Unable to determine cloud API version");
             }
         }

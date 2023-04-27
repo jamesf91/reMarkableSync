@@ -1,10 +1,9 @@
-﻿using System;
+﻿using RemarkableSync.document;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +25,8 @@ namespace RemarkableSync
         private object _taskProgress;
         private V2HttpHelper _httpHelper;
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public V2DocTreeProcessor(HttpClient client)
         {
             _docTreeFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppFolder, TreeFile);
@@ -41,17 +42,17 @@ namespace RemarkableSync
         public async Task SyncTreeAsync(CancellationToken cancellationToken, IProgress<string> progress)
         {
             // TODO: progress reporting
-            Logger.LogMessage("Entering ... ");
+            Logger.Debug("Entering ... ");
             BlobStream rootHashBlob = await _httpHelper.GetBlobStreamFromHashAsync("root");
             if (rootHashBlob == null)
             {
-                Logger.LogMessage("Unable to get root blob for syncing");
+                Logger.Error("Unable to get root blob for syncing");
                 throw new Exception("Unable to get document tree from cloud.");
             }
 
             if (rootHashBlob.Blob == _rootHash)
             {
-                Logger.LogMessage("Remote hash has not changed. Local cache is up to date");
+                Logger.Error("Remote hash has not changed. Local cache is up to date");
                 return;
             }
 
@@ -61,7 +62,7 @@ namespace RemarkableSync
             var latestDocFiles = ParseIndex(rootBlob.Blob);
             if (latestDocFiles == null)
             {
-                Logger.LogMessage("Error parsing root index");
+                Logger.Error("Error parsing root index");
                 throw new Exception("Unable to get document tree from cloud.");
             }
 
@@ -69,7 +70,7 @@ namespace RemarkableSync
 
             cancellationToken.ThrowIfCancellationRequested();
             progress.Report($"Retrieving document metadata... 0 out of {docsToRead.Count} complete.");
-            lock(_taskProgress)
+            lock (_taskProgress)
             {
                 _taskProgress = 0;
             }
@@ -77,7 +78,7 @@ namespace RemarkableSync
             {
                 CancellationToken = cancellationToken
             };
-            Parallel.ForEach(docsToRead, po, 
+            Parallel.ForEach(docsToRead, po,
                 doc =>
                 {
                     var result = GetMetadataForDocAsync(doc, docsToRead.Count, cancellationToken, progress).Result;
@@ -87,14 +88,14 @@ namespace RemarkableSync
             _rootHash = rootHashBlob.Blob;
             _generation = rootHashBlob.Generation;
             WriteTree();
-            Logger.LogMessage("Completed ");
+            Logger.Debug("Completed ");
         }
 
         public List<RmItem> GetAllItems()
         {
             var items = new List<RmItem>();
 
-            lock(_docs)
+            lock (_docs)
             {
                 foreach (var entry in _docs)
                 {
@@ -120,7 +121,7 @@ namespace RemarkableSync
             {
                 if (!_docs.ContainsKey(docId))
                 {
-                    Logger.LogMessage($"Unknown docId: {docId} ");
+                    Logger.Debug($"Unknown docId: {docId} ");
                     return fileList;
                 }
 
@@ -166,7 +167,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to write tree to disk. err: {err.ToString()} ");
+                Logger.Error($"Failed to write tree to disk. err: {err.ToString()} ");
                 return false;
             }
         }
@@ -180,7 +181,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Failed to read tree from disk. err: {err.ToString()} ");
+                Logger.Error($"Failed to read tree from disk. err: {err.ToString()} ");
                 return null;
             }
         }
@@ -190,7 +191,7 @@ namespace RemarkableSync
             var lines = Array.FindAll(rootIndex.Split('\n'), line => line.Length > 0).ToList();
             if (lines[0] != SchemaVersion)
             {
-                Logger.LogMessage($"Unexpected schema version: {lines[0]}");
+                Logger.Debug($"Unexpected schema version: {lines[0]}");
                 return null;
             }
             lines.RemoveAt(0);
@@ -202,7 +203,7 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Error while parsing doc entries: err: {err.Message}");
+                Logger.Error($"Error while parsing doc entries: err: {err.Message}");
                 return null;
             }
         }
@@ -212,7 +213,7 @@ namespace RemarkableSync
             var fields = line.Split(Delimiter).ToList();
             if (fields.Count != 5)
             {
-                Logger.LogMessage($"Expected 5 fields, got {fields.Count} fields for line {line}");
+                Logger.Error($"Expected 5 fields, got {fields.Count} fields for line {line}");
                 throw new Exception("Incorrect number of fields in doc entry line");
             }
 
@@ -282,7 +283,7 @@ namespace RemarkableSync
                 }
             }
 
-            Logger.LogMessage($"Checking existing docs against new docs, adding {docsAdded}, updating {docsModified}, removing {docsRemoved}");
+            Logger.Debug($"Checking existing docs against new docs, adding {docsAdded}, updating {docsModified}, removing {docsRemoved}");
             return documentsToRead;
         }
 
@@ -292,9 +293,9 @@ namespace RemarkableSync
             var docfiles = ParseIndex(docBlob.Blob);
             if (docfiles == null)
             {
-                Logger.LogMessage($"Error parsing doc index for documentID {doc.DocumentID}, hash {doc.Hash}");
+                Logger.Error($"Error parsing doc index for documentID {doc.DocumentID}, hash {doc.Hash}");
                 // handle error
-                return false ;
+                return false;
             }
 
             doc.Files = docfiles.Values.OrderBy(docfile => docfile.DocumentID).ToArray();
@@ -311,7 +312,7 @@ namespace RemarkableSync
 
             if (metadataDocId.Length == 0)
             {
-                Logger.LogMessage($"Unable to find .metadata for documentID {doc.DocumentID}, hash {doc.Hash}");
+                Logger.Error($"Unable to find .metadata for documentID {doc.DocumentID}, hash {doc.Hash}");
                 // handle error
                 return false;
             }
@@ -337,12 +338,12 @@ namespace RemarkableSync
             }
             catch (Exception err)
             {
-                Logger.LogMessage($"Error deseralizing metadata file. Err: {err.ToString()}");
+                Logger.Error($"Error deseralizing metadata file. Err: {err.ToString()}");
                 // handle error
                 return false;
             }
 
-            lock(_docs)
+            lock (_docs)
             {
                 _docs[doc.DocumentID] = doc;
             }

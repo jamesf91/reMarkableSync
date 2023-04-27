@@ -1,8 +1,7 @@
-﻿using System;
+﻿using RemarkableSync.document;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,13 +22,13 @@ namespace RemarkableSync
         {
         }
 
-        public async Task<RmDownloadedDoc> DownloadDocument(RmItem item, CancellationToken cancellationToken, IProgress<string> progress)
+        public async Task<RmDocument> DownloadDocument(string ID, CancellationToken cancellationToken, IProgress<string> progress)
         {
-            var fileList = _docTreeProcessor.GetFileListForDocument(item.ID);
+            var fileList = _docTreeProcessor.GetFileListForDocument(ID);
 
             return await Task.Run(() =>
             {
-                return new RmCloudV2DownloadedDoc(item.ID, fileList, _client, cancellationToken, progress);
+                return new RmCloudV2DownloadedDoc(ID, fileList, _client, cancellationToken, progress);
             });
         }
 
